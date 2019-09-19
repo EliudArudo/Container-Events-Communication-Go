@@ -1,0 +1,26 @@
+version: "3"
+services:
+  consuming-frontend:
+    image: go-container-events-communication-consuming-frontend:dev
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 1  
+      restart_policy: 
+        condition: on-failure
+  event-service:
+    image: eliudarudo/go-container-events-communication-event-service:dev
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 1 
+      restart_policy: 
+        condition: on-failure  
+  consuming-backend:
+    image: eliudarudo/go-container-events-communication-consuming-backend:dev
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 3  
+      restart_policy: 
+        condition: on-failure      
