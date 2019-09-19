@@ -5,3 +5,5 @@ golang.org
 
 go.mod
 go.sum
+
+*.exe
