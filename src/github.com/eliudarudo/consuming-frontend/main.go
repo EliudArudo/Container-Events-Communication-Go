@@ -1,21 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
+	"github.com/eliudarudo/consuming-frontend/initialise"
 )
 
-func forever() {
-	for {
-	}
-}
-
 func main() {
-	myContainerInfo := dockerapi.GetMyContainerInfo()
-
-	fmt.Print("My container info: %v", myContainerInfo)
-	// block forever
-	go forever()
-	select {}
+	initialise.Go()
 }
