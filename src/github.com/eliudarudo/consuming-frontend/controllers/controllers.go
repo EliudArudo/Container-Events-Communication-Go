@@ -3,22 +3,38 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/eliudarudo/consuming-frontend/dockerapi"
+	"github.com/eliudarudo/consuming-frontend/logs"
+	"github.com/eliudarudo/consuming-frontend/tasks"
 )
 
-// type indexStruct struct {
-// 	Path  string `json:"path"`
-// 	Route string `json:"route"`
-// }
+var filename = "controllers/controllers.go"
 
-// HTTPIndex controller receives GET requests from '/' route
-func HTTPIndex(w http.ResponseWriter, r *http.Request) {
+// IndexController controller receives GET requests from '/' route
+func IndexController(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, "OK")
 }
 
-// HTTPPostTaskHandler gets an Item from our store using route parameters
-func HTTPPostTaskHandler(w http.ResponseWriter, r *http.Request) {
-	respondJSON(w, http.StatusOK, "OK")
+// RequestRouteController gets an Item from our store using route parameters
+func RequestRouteController(w http.ResponseWriter, r *http.Request) {
 
+	myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
+
+	var decodedRequestBody map[string]interface{}
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&decodedRequestBody); err != nil {
+		logs.StatusFileMessageLogging("FAILURE", filename, "RequestRouteController", err.Error())
+	}
+	defer r.Body.Close()
+
+	response, err := tasks.TaskController(decodedRequestBody, myContainerInfo)
+	if err != nil {
+		respondError(w, http.StatusBadGateway, "Server Error")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, response)
 }
 
 // Utility functions
@@ -35,7 +51,16 @@ func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	w.Write([]byte(response))
 }
 
-// RespondError to cover all unhandled routes
-func RespondError(w http.ResponseWriter, r *http.Request) {
+func respondError(w http.ResponseWriter, code int, message string) {
+	respondJSON(w, code, map[string]string{"error": message})
+}
+
+// RouterHandler404 to cover all unhandled routes
+func RouterHandler404(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, "Error")
 }
+
+// // RedisController receives messages sent through redis lines
+// func RedisController(event *redis.Message, containerInfo interfaces.ContainerInfoStruct) {
+// 	logic.EventDeterminer(event.Payload, containerInfo)
+// }

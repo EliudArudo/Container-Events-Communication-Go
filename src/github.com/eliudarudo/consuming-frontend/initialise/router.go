@@ -6,8 +6,12 @@ import (
 	"net/http"
 
 	"github.com/eliudarudo/consuming-frontend/controllers"
+	"github.com/eliudarudo/consuming-frontend/env"
+	"github.com/eliudarudo/consuming-frontend/logs"
 	"github.com/gorilla/mux"
 )
+
+var routerFilename = "initialise/router.go"
 
 // App to create Router Instance
 type App struct {
@@ -15,57 +19,44 @@ type App struct {
 }
 
 func initialiseRouter() {
-	port := 8080
-	portString := fmt.Sprintf(":%d", port)
+	portString := fmt.Sprintf(":%d", env.Port)
 
 	app := &App{}
 	app.initialize()
-	fmt.Printf("Starting server on port: %v\n", port)
-	app.Run(portString)
+
+	logMessage := fmt.Sprintf("Starting server on port: %v\n", env.Port)
+	logs.StatusFileMessageLogging("SUCCESS", routerFilename, "initialiseRouter", logMessage)
+
+	app.run(portString)
 }
 
 func (a *App) initialize() {
 	a.Router = mux.NewRouter()
 	a.setRouters()
-	a.Router.NotFoundHandler = a.handleRequest(controllers.RespondError)
+	a.Router.NotFoundHandler = a.handleRequest(controllers.RouterHandler404)
 }
 
-// setRouters sets all the required routers
 func (a *App) setRouters() {
-	a.Get("/", a.handleRequest(controllers.HTTPIndex))
+	a.get("/", a.handleRequest(controllers.IndexController))
 
-	a.Post("/task", a.handleRequest(controllers.HTTPPostTaskHandler))
+	a.post("/task", a.handleRequest(controllers.RequestRouteController))
 }
 
-// Get wraps the router for GET method
-func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
+func (a *App) get(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("GET")
 }
 
-// Put wraps the router for PUT method
-func (a *App) Put(path string, f func(w http.ResponseWriter, r *http.Request)) {
-	a.Router.HandleFunc(path, f).Methods("PUT")
-}
-
-// Post wraps the router for POST method
-func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
+func (a *App) post(path string, f func(w http.ResponseWriter, r *http.Request)) {
 	a.Router.HandleFunc(path, f).Methods("POST")
 }
 
-// Delete wraps the router for DELETE method
-func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)) {
-	a.Router.HandleFunc(path, f).Methods("DELETE")
-}
-
-// Run the app
-func (a *App) Run(host string) {
+func (a *App) run(host string) {
 	log.Fatal(http.ListenAndServe(host, a.Router))
 }
 
-// RequestHandlerFunction does something
-type RequestHandlerFunction func(w http.ResponseWriter, r *http.Request)
+type requestHandlerFunction func(w http.ResponseWriter, r *http.Request)
 
-func (a *App) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
+func (a *App) handleRequest(handler requestHandlerFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		handler(w, r)
 	}

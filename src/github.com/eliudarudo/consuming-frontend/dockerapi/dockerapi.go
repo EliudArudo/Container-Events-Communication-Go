@@ -32,8 +32,11 @@ func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 
 // GetMyOfflineContainerInfo fetches the container info without initialisation
 func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
-	if len(myContainerInfo.ID) == 0 {
-		panic("Container was not properly initialised")
+	for {
+		if len(myContainerInfo.ID) > 0 {
+			break
+		}
+		GetMyContainerInfo()
 	}
 
 	return myContainerInfo
@@ -124,15 +127,15 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 	return containerInfo
 }
 
-// GetSelectedEventContainerIDAndService uses service keyword to randomly select a container
-func GetSelectedEventContainerIDAndService(targetServiceKeyword string) interfaces.ContainerInfoStruct {
-	var freshContainers []interfaces.ContainerInfoStruct = getFreshContainers()
+// FetchEventContainer uses service keyword to randomly select a container
+func FetchEventContainer() interfaces.ContainerInfoStruct {
+	freshContainers := getFreshContainers()
 
 	var selectedContainers []interfaces.ContainerInfoStruct
 
 	for _, container := range freshContainers {
 		lowerCaseContainerService := strings.ToLower(container.Service)
-		var containerBelongsToSelectedService = strings.Contains(lowerCaseContainerService, targetServiceKeyword)
+		containerBelongsToSelectedService := strings.Contains(lowerCaseContainerService, "event")
 
 		if containerBelongsToSelectedService {
 			selectedContainers = append(selectedContainers, container)
@@ -151,7 +154,7 @@ func GetSelectedEventContainerIDAndService(targetServiceKeyword string) interfac
 		if len(selectedContainer.ID) > 0 {
 			break
 		} else {
-			GetSelectedEventContainerIDAndService(targetServiceKeyword)
+			FetchEventContainer()
 		}
 	}
 
