@@ -11,7 +11,7 @@ import (
 	"github.com/docker/docker/client"
 	"golang.org/x/net/context"
 
-	"github.com/eliudarudo/consuming-frontend/interfaces"
+	"github.com/eliudarudo/consuming-backend/interfaces"
 )
 
 var myContainerInfo interfaces.ContainerInfoStruct

@@ -1,8 +1,8 @@
 package initialise
 
 import (
-	"github.com/eliudarudo/consuming-frontend/env"
-	"github.com/eliudarudo/consuming-frontend/localredis"
+	"github.com/eliudarudo/consuming-backend/env"
+	"github.com/eliudarudo/consuming-backend/localredis"
 )
 
 // Go initialises http,mongodb and redis

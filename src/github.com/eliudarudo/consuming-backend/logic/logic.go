@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/eliudarudo/consuming-frontend/env"
+	"github.com/eliudarudo/consuming-backend/env"
 	"github.com/go-redis/redis"
 
-	"github.com/eliudarudo/consuming-frontend/interfaces"
-	"github.com/eliudarudo/consuming-frontend/logs"
-	"github.com/eliudarudo/consuming-frontend/util"
+	"github.com/eliudarudo/consuming-backend/interfaces"
+	"github.com/eliudarudo/consuming-backend/logs"
+	"github.com/eliudarudo/consuming-backend/util"
 )
 
 var filename = "logic/logic.go"

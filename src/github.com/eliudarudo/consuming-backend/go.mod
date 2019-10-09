@@ -1,4 +1,4 @@
-module github.com/eliudarudo/consuming-frontend
+module github.com/eliudarudo/consuming-backend
 
 go 1.12
 

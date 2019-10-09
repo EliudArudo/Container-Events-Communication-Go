@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/eliudarudo/consuming-frontend/initialise"
+	"github.com/eliudarudo/consuming-backend/initialise"
 )
 
 func main() {

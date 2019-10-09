@@ -3,10 +3,10 @@ package localredis
 import (
 	"fmt"
 
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
-	"github.com/eliudarudo/consuming-frontend/env"
-	"github.com/eliudarudo/consuming-frontend/logic"
-	"github.com/eliudarudo/consuming-frontend/logs"
+	"github.com/eliudarudo/consuming-backend/dockerapi"
+	"github.com/eliudarudo/consuming-backend/env"
+	"github.com/eliudarudo/consuming-backend/logic"
+	"github.com/eliudarudo/consuming-backend/logs"
 	"github.com/go-redis/redis"
 )
 

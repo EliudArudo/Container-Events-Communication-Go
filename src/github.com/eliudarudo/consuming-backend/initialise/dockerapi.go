@@ -3,7 +3,7 @@ package initialise
 import (
 	"errors"
 
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
+	"github.com/eliudarudo/consuming-backend/dockerapi"
 )
 
 func initialiseDocker() error {

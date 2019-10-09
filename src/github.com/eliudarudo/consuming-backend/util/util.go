@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/eliudarudo/consuming-frontend/interfaces"
+	"github.com/eliudarudo/consuming-backend/interfaces"
 )
 
 var filename = "util/util.go"

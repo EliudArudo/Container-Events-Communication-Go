@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/eliudarudo/consuming-frontend/interfaces"
+	"github.com/eliudarudo/consuming-backend/interfaces"
 )
 
 // EventService is what our event service is listening to

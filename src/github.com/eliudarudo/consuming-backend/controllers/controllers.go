@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
-	"github.com/eliudarudo/consuming-frontend/logs"
-	"github.com/eliudarudo/consuming-frontend/tasks"
+	"github.com/eliudarudo/consuming-backend/dockerapi"
+	"github.com/eliudarudo/consuming-backend/logs"
+	"github.com/eliudarudo/consuming-backend/tasks"
 )
 
 var filename = "controllers/controllers.go"
