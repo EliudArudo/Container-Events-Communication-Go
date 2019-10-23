@@ -17,11 +17,16 @@ var filename = "logic/logic.go"
 // EventDeterminer determines which type of event
 // has been received through redis
 func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStruct) {
+	var debug1 string
 	var event interfaces.ReceivedEventInterface
 
-	if err := json.Unmarshal([]byte(sentEvent), &event); err != nil {
+	json.Unmarshal([]byte(sentEvent), &debug1)
+
+	if err := json.Unmarshal([]byte(debug1), &event); err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
 	}
+
+	fmt.Printf("\n \n-------> event received :%+v \n", event)
 
 	eventIsOurs := event.ContainerID == containerInfo.ID && event.Service == containerInfo.Service
 

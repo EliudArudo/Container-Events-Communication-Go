@@ -13,6 +13,7 @@ var responses []interfaces.ReceivedEventInterface
 func PushResponseToBuffers(response interfaces.ReceivedEventInterface) {
 	responseBuffer = append(responseBuffer, response.RequestID)
 	responses = append(responses, response)
+
 }
 
 func clearResponseFromBuffers(requestID string) {

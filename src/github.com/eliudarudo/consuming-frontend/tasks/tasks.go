@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/eliudarudo/consuming-frontend/dockerapi"
 	"github.com/eliudarudo/consuming-frontend/env"
@@ -110,11 +111,13 @@ func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces
 
 }
 
-func waitForResult(requestID string) interfaces.ReceivedEventInterface {
+func waitForResult(requestID string, expiresAt int64) interfaces.ReceivedEventInterface {
 	response := util.GetResponseFromBuffer(requestID)
 
 	for {
-		if len(response.ContainerID) > 0 {
+		timeNow := int64(time.Now().Unix())
+
+		if timeNow >= expiresAt || len(response.ContainerID) > 0 {
 			break
 		}
 		response = util.GetResponseFromBuffer(requestID)
@@ -151,7 +154,14 @@ func TaskController(decodedRequestBody map[string]interface{}, containerInfo int
 
 	sendTaskToEventsService(task)
 
-	response := waitForResult(task.RequestID)
+	expiresAt := int64(time.Now().Add(5 * time.Second).Unix())
+	response := waitForResult(task.RequestID, expiresAt)
 
-	return interfaces.ResultStruct{"OK", response.ResponseBody}, nil
+	result := interfaces.ResultStruct{"FAIL", "0"}
+
+	if len(response.ResponseBody) > 0 {
+		result = interfaces.ResultStruct{"OK", response.ResponseBody}
+	}
+
+	return result, nil
 }

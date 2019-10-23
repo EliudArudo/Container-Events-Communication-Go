@@ -17,9 +17,12 @@ var filename = "logic/logic.go"
 // EventDeterminer determines which type of event
 // has been received through redis
 func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStruct) {
+	var debug1 string
 	var event interfaces.ReceivedEventInterface
 
-	if err := json.Unmarshal([]byte(sentEvent), &event); err != nil {
+	json.Unmarshal([]byte(sentEvent), &debug1)
+
+	if err := json.Unmarshal([]byte(debug1), &event); err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
 	}
 
@@ -48,11 +51,6 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 
 func performTaskAndRespond(task interfaces.ReceivedEventInterface) {
 	results := performLogic(task)
-
-	string1 := fmt.Sprintf("%v", task)
-	logs.StatusFileMessageLogging("SUCCESS", filename, "performTaskAndRespond -> task", string1)
-	logs.StatusFileMessageLogging("SUCCESS", filename, "performTaskAndRespond -> results", results)
-
 	sendTaskToEventsService(task, results)
 }
 
@@ -67,6 +65,8 @@ func sendTaskToEventsService(task interfaces.ReceivedEventInterface, results str
 	defer publisher.Close()
 
 	exportedTask := interfaces.ReceivedEventInterface{
+		Task:                    task.Task,
+		Subtask:                 task.Subtask,
 		ContainerID:             task.ContainerID,
 		Service:                 task.Service,
 		RecordID:                task.RecordID,
@@ -94,6 +94,7 @@ func getObjectKeys(_map map[string]interface{}) []string {
 }
 
 func performLogic(task interfaces.ReceivedEventInterface) string {
+
 	var decodedRequestBody map[string]interface{}
 	err := json.Unmarshal([]byte(task.RequestBody), &decodedRequestBody)
 	if err != nil {
