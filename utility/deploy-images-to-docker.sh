@@ -1,4 +1,4 @@
-export COLLECTIVE_VERSION=v1.5
+export COLLECTIVE_VERSION=v1.51
 
 docker build -t eliudarudo/go-events-communication-consuming-frontend:$COLLECTIVE_VERSION -t eliudarudo/go-events-communication-consuming-frontend:latest -f ../src/github.com/eliudarudo/consuming-frontend/Dockerfile ../src/github.com/eliudarudo/consuming-frontend
 docker build -t eliudarudo/go-events-communication-events-service:$COLLECTIVE_VERSION -t eliudarudo/go-events-communication-events-service:latest -f ../src/github.com/eliudarudo/events-service/Dockerfile ../src/github.com/eliudarudo/events-service

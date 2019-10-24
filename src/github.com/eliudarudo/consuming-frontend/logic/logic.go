@@ -16,11 +16,17 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 	var debug1 string
 	var event interfaces.ReceivedEventInterface
 
-	json.Unmarshal([]byte(sentEvent), &debug1)
+	json.Unmarshal([]byte(sentEvent), &event)
 
-	if err := json.Unmarshal([]byte(debug1), &event); err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
+	// If event is still unmarshalled
+	if len(event.ContainerID) == 0 {
+		json.Unmarshal([]byte(sentEvent), &debug1)
+
+		if err := json.Unmarshal([]byte(debug1), &event); err != nil {
+			logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
+		}
 	}
+	// else event is already marshalled
 
 	eventIsOurs := event.ContainerID == containerInfo.ID && event.Service == containerInfo.Service
 
