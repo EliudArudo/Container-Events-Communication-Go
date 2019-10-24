@@ -9,7 +9,6 @@ import (
 
 	"github.com/eliudarudo/consuming-backend/interfaces"
 	"github.com/eliudarudo/consuming-backend/logs"
-	"github.com/eliudarudo/consuming-backend/util"
 )
 
 var filename = "logic/logic.go"
@@ -42,9 +41,12 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 
 	switch taskType {
 	case interfaces.TASK:
+		// Already has fromContainerID and fromContainerService, to it sends back directly to the
+		// event service it got this from
 		performTaskAndRespond(event)
 	case interfaces.RESPONSE:
-		util.PushResponseToBuffers(event)
+		// Empty function here - backend does not receive responses
+		// for now
 	}
 
 }

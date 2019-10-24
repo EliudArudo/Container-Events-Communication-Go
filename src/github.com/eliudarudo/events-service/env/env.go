@@ -7,20 +7,20 @@ import (
 	"github.com/eliudarudo/event-service/interfaces"
 )
 
-// EventService is what our event service is listening to
+// EventService is the default channel listened to from redis pubsub
 var EventService = "Event_Service"
 
-// ConsumingService is what the consuming containers are listening to
+// ConsumingService is the default channel for publishing redis messages
 var ConsumingService = "Consuming_Service"
 
-// RedisKeys connects us to our redis instance
+// RedisKeys are the default redis database keys
 var RedisKeys = interfaces.RedisEnvInterface{Host: "localhost", Port: 6379}
 
-// MongoKeys connects us to our mongodb instance
+// MongoKeys are the default mongodb database keys
 var MongoKeys = interfaces.MongoEnvInterface{Host: "localhost", Port: 27017, Database: "test"}
 
-// InitialiseEnvironmentVariables initialises our env variables
-func InitialiseEnvironmentVariables() {
+// FetchEnvironmentVariables checks if we have environment variables set and defaults to default values above
+func FetchEnvironmentVariables() {
 	initialiseMongoEnv()
 	initialiseRedisEnv()
 	initialiseRedisChannelEnv()

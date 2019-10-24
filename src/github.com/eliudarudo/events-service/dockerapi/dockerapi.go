@@ -16,8 +16,8 @@ import (
 
 var myContainerInfo interfaces.ContainerInfoStruct
 
-// GetMyContainerInfo simply pics info from our local initialised
-// myContainerInfo global variable
+// GetMyContainerInfo gets all docker containers and stores this container's info in the global
+// myContainerInfo variable
 func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		initialise()
@@ -30,7 +30,8 @@ func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	return myContainerInfo
 }
 
-// GetMyOfflineContainerInfo fetches the container info without initialisation
+// GetMyOfflineContainerInfo get's container info from global myContainerInfo variable
+// If it does not exist, it reinitialises the container info fetch and returns it
 func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		if len(myContainerInfo.ID) > 0 {
@@ -127,7 +128,7 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 	return containerInfo
 }
 
-// FetchConsumingContainer uses service keyword to randomly select a container
+// FetchConsumingContainer returns a randomly selected container from target service
 func FetchConsumingContainer(containerServiceKeyword string) interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 
@@ -142,7 +143,6 @@ func FetchConsumingContainer(containerServiceKeyword string) interfaces.Containe
 		}
 	}
 
-	// const randomlySelectedContainer: ContainerInfoInterface = selectedContainers[Math.floor(Math.random() * selectedContainers.length)];
 	rand.Seed(time.Now().Unix())
 	randomIndex := rand.Int() % len(selectedContainers)
 

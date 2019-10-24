@@ -13,12 +13,12 @@ import (
 
 var routerFilename = "initialise/router.go"
 
-// App to create Router Instance
+// App defines the Mux router object
 type App struct {
 	Router *mux.Router
 }
 
-func initialiseRouter() {
+func setUpRouter() {
 	portString := fmt.Sprintf(":%d", env.Port)
 
 	app := &App{}

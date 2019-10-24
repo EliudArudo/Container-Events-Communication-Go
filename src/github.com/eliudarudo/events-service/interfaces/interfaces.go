@@ -7,20 +7,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// ContainerInfoStruct gets container ID and Service info
+// ContainerInfoStruct maps a docker container ID and Service
 type ContainerInfoStruct struct {
 	ID      string
 	Service string
 }
 
-// TODO - remove all unneeded code for each microservice
-// // ResultStruct is what TaskController returns after computation
-// type ResultStruct struct {
-// 	Message string `json:"message"`
-// 	Result  string `json:"result"`
-// }
-
-// TaskType either 'Number' or 'String'
+// TaskType determines which service is selected
 type TaskType string
 
 const (
@@ -44,17 +37,17 @@ const (
 	DIVIDE = "DIVIDE"
 )
 
-// EventTaskType either 'Task' or 'Response'
+// EventTaskType determines next action on event being received from consuming containers
 type EventTaskType int
 
 const (
-	// TASK has requestBody
+	// TASK determined by presense of requestBody field in ReceivedEventInterface object
 	TASK EventTaskType = iota
-	// RESPONSE has responseBody
+	// RESPONSE determined by presense of responseBody field in ReceivedEventInterface object
 	RESPONSE
 )
 
-// TaskStruct is the determined task to be sent to event service
+// TaskStruct is the most basic form of a Task for internal processing
 type TaskStruct struct {
 	Task                    TaskType    `json:"task"`
 	Subtask                 SubTaskType `json:"subtask"`
@@ -66,12 +59,12 @@ type TaskStruct struct {
 	ServiceContainerService string      `json:"serviceContainerService"`
 }
 
-// MarshalBinary -
+// MarshalBinary marshals []byte
 func (e *TaskStruct) MarshalBinary() ([]byte, error) {
 	return json.Marshal(e)
 }
 
-// UnmarshalBinary -
+// UnmarshalBinary unmarshals a []byte
 func (e *TaskStruct) UnmarshalBinary(data []byte) error {
 	if err := json.Unmarshal(data, &e); err != nil {
 		return err
@@ -80,7 +73,7 @@ func (e *TaskStruct) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// ReceivedEventInterface is for events received
+// ReceivedEventInterface is structure of object we've just received from redis pubsub
 type ReceivedEventInterface struct {
 	RequestID               string      `json:"requestId"`
 	ContainerID             string      `json:"containerId"`
@@ -94,12 +87,12 @@ type ReceivedEventInterface struct {
 	ServiceContainerService string      `json:"serviceContainerService"`
 }
 
-// MarshalBinary -
+// MarshalBinary marshals []byte
 func (e *ReceivedEventInterface) MarshalBinary() ([]byte, error) {
 	return json.Marshal(e)
 }
 
-// UnmarshalBinary -
+// UnmarshalBinary unmarshals a []byte
 func (e *ReceivedEventInterface) UnmarshalBinary(data []byte) error {
 	if err := json.Unmarshal(data, &e); err != nil {
 		return err
@@ -108,22 +101,20 @@ func (e *ReceivedEventInterface) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// RedisEnvInterface is an interface for our redis env variables
+// RedisEnvInterface defines Host and Port fields for redis keys
 type RedisEnvInterface struct {
 	Host string
 	Port int
 }
 
-// MongoEnvInterface is an interface for our mongodb env variables
+// MongoEnvInterface defines Host, Port and Database fields for redis keys
 type MongoEnvInterface struct {
 	Host     string
 	Port     int
 	Database string
 }
 
-// TODO - add 'omitempty' to all the other service interfaces
-
-// InitialisedRecordInfoInterface -
+// InitialisedRecordInfoInterface defines a Task record that has just been received from redis pubsub
 type InitialisedRecordInfoInterface struct {
 	ContainerID             string      `json:"containerId"`
 	ContainerService        string      `json:"containerService"`
@@ -140,7 +131,7 @@ type InitialisedRecordInfoInterface struct {
 	ChosenContainerService string `json:"chosenContainerService"`
 }
 
-// EventInterface -
+// EventInterface is a base event interface for all our event-based objects
 type EventInterface struct {
 	RequestID   string `json:"requestId"`
 	ContainerID string `json:"containerId"`
@@ -158,15 +149,15 @@ type EventInterface struct {
 	RequestBody             string      `json:"requestBody"`
 }
 
-// Mongo Models
+// Mongo DB Models
 
-// RequestModelInterface -
+// RequestModelInterface is a model for our mongodb 'requests' collection
 type RequestModelInterface struct {
 	ID      primitive.ObjectID `bson:"_id, omitempty" json:"_id"`
 	Request string             `json:"request" bson:"request"`
 }
 
-// TaskModelInterface -
+// TaskModelInterface is a model for our mongodb 'tasks' collection
 type TaskModelInterface struct {
 	ID                      primitive.ObjectID `bson:"_id, omitempty" json:"_id"`
 	FromRequestID           string             `json:"fromRequestId" bson:"fromRequestId"`
@@ -186,7 +177,7 @@ type TaskModelInterface struct {
 	FromSentTime     time.Time `json:"fromSentTime" bson:"fromSentTime"`
 }
 
-// ResponseModelInterface -
+// ResponseModelInterface is a model for our mongodb 'responses' collection
 type ResponseModelInterface struct {
 	ID       primitive.ObjectID `bson:"_id, omitempty" json:"_id"`
 	Response string             `json:"response" bson:"response"`

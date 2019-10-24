@@ -1,11 +1,8 @@
 package dockerapi
 
 import (
-	"errors"
-	"math/rand"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -16,8 +13,8 @@ import (
 
 var myContainerInfo interfaces.ContainerInfoStruct
 
-// GetMyContainerInfo simply pics info from our local initialised
-// myContainerInfo global variable
+// GetMyContainerInfo gets all docker containers and stores this container's info in the global
+// myContainerInfo variable
 func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		initialise()
@@ -30,7 +27,8 @@ func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	return myContainerInfo
 }
 
-// GetMyOfflineContainerInfo fetches the container info without initialisation
+// GetMyOfflineContainerInfo get's container info from global myContainerInfo variable
+// If it does not exist, it reinitialises the container info fetch and returns it
 func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		if len(myContainerInfo.ID) > 0 {
@@ -40,44 +38,6 @@ func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	}
 
 	return myContainerInfo
-}
-
-func getParsedContainers(containerArray []types.Container) ([]interfaces.ContainerInfoStruct, error) {
-	if len(containerArray) == 0 {
-		return nil, errors.New("No containers to parse")
-	}
-
-	parsedContainers := make([]interfaces.ContainerInfoStruct, len(containerArray))
-
-	for index, container := range containerArray {
-		parsedContainers[index].ID = container.ID
-
-		containerService := container.Labels["com.docker.swarm.service.name"]
-
-		parsedContainers[index].Service = containerService
-	}
-
-	return parsedContainers, nil
-}
-
-func getFreshContainers() []interfaces.ContainerInfoStruct {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(err)
-	}
-
-	var containerArray []types.Container
-	var parsedContainers []interfaces.ContainerInfoStruct
-
-	for {
-		containerArray, _ = cli.ContainerList(context.Background(), types.ContainerListOptions{})
-		parsedContainers, err = getParsedContainers(containerArray)
-		if err == nil && len(parsedContainers) > 0 {
-			break
-		}
-	}
-
-	return parsedContainers
 }
 
 func initialise() {
@@ -125,38 +85,4 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 	}
 
 	return containerInfo
-}
-
-// FetchEventContainer uses service keyword to randomly select a container
-func FetchEventContainer() interfaces.ContainerInfoStruct {
-	freshContainers := getFreshContainers()
-
-	var selectedContainers []interfaces.ContainerInfoStruct
-
-	for _, container := range freshContainers {
-		lowerCaseContainerService := strings.ToLower(container.Service)
-		containerBelongsToSelectedService := strings.Contains(lowerCaseContainerService, "event")
-
-		if containerBelongsToSelectedService {
-			selectedContainers = append(selectedContainers, container)
-		}
-	}
-
-	// const randomlySelectedContainer: ContainerInfoInterface = selectedContainers[Math.floor(Math.random() * selectedContainers.length)];
-	rand.Seed(time.Now().Unix())
-	randomIndex := rand.Int() % len(selectedContainers)
-
-	var randomlySelectedContainer interfaces.ContainerInfoStruct = selectedContainers[randomIndex]
-
-	selectedContainer := interfaces.ContainerInfoStruct{ID: randomlySelectedContainer.ID, Service: randomlySelectedContainer.Service}
-
-	for {
-		if len(selectedContainer.ID) > 0 {
-			break
-		} else {
-			FetchEventContainer()
-		}
-	}
-
-	return selectedContainer
 }

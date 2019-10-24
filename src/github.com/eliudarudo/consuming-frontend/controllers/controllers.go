@@ -11,12 +11,13 @@ import (
 
 var filename = "controllers/controllers.go"
 
-// IndexController controller receives GET requests from '/' route
+// IndexController controller returns a test response on root route
 func IndexController(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, "OK")
 }
 
-// RequestRouteController gets an Item from our store using route parameters
+// RequestRouteController receives requests and routes them to TaskController which determines the task
+// and sends it to through redis pubsub
 func RequestRouteController(w http.ResponseWriter, r *http.Request) {
 
 	myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
@@ -37,7 +38,6 @@ func RequestRouteController(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, response)
 }
 
-// Utility functions
 func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 	response, err := json.Marshal(payload)
 	if err != nil {
@@ -55,12 +55,7 @@ func respondError(w http.ResponseWriter, code int, message string) {
 	respondJSON(w, code, map[string]string{"error": message})
 }
 
-// RouterHandler404 to cover all unhandled routes
+// RouterHandler404 covers all undefined routes
 func RouterHandler404(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, "Error")
 }
-
-// // RedisController receives messages sent through redis lines
-// func RedisController(event *redis.Message, containerInfo interfaces.ContainerInfoStruct) {
-// 	logic.EventDeterminer(event.Payload, containerInfo)
-// }

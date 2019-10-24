@@ -14,43 +14,40 @@ import (
 
 var filename = "mongodb/mongodb.go"
 
-// MongoClient is what we export
-var MongoClient *(mongo.Client)
-
-// InitialiseMongoDB initialised the client
-func InitialiseMongoDB() {
+// TestMongoDBConnection pings mongodb and checks for a working connection
+// If there isn't, it'll crash the container till it gets a connection
+func TestMongoDBConnection() {
 
 	mongoURI := fmt.Sprintf("%v://mongodb:%v/%v", env.MongoKeys.Host, env.MongoKeys.Port, env.MongoKeys.Database)
 
-	MongoClient, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	mongoClient, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "initialiseMongoDB", err.Error())
+		panic("Could not create a new MongoClient")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	err = MongoClient.Connect(ctx)
+	err = mongoClient.Connect(ctx)
 	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "initialiseMongoDB", err.Error())
+		panic("Could not connect to MongoDB")
 	}
 	defer cancel()
 
 	logs.StatusFileMessageLogging("SUCCESS", filename, "initialiseMongoDB", "Successfully connected to MongoDB")
 }
 
-// GetClient -
+// GetClient establishes a connection to mongodb and returns a working Client
 func GetClient() *(mongo.Client) {
 	mongoURI := fmt.Sprintf("%v://mongodb:%v/%v", env.MongoKeys.Host, env.MongoKeys.Port, env.MongoKeys.Database)
 
 	mongoClient, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "initialiseMongoDB", err.Error())
+		logs.StatusFileMessageLogging("FAILURE", filename, "GetClient", "Failed to create a new MongoClient")
 	}
 
 	err = mongoClient.Connect(context.TODO())
 	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "initialiseMongoDB", err.Error())
+		logs.StatusFileMessageLogging("FAILURE", filename, "GetClient", "Failed to connect to the new MongoClient")
 	}
 
 	return mongoClient
-
 }

@@ -9,7 +9,7 @@ var filename = "util/util.go"
 var responseBuffer []string
 var responses []interfaces.ReceivedEventInterface
 
-// PushResponseToBuffers pushes response to buffers
+// PushResponseToBuffers pushes response object and ID to responseBuffer and responses array respectively
 func PushResponseToBuffers(response interfaces.ReceivedEventInterface) {
 	responseBuffer = append(responseBuffer, response.RequestID)
 	responses = append(responses, response)
@@ -37,7 +37,7 @@ func clearResponseFromBuffers(requestID string) {
 	responses = newResponsesArray
 }
 
-// GetResponseFromBuffer get's response from the buffer
+// GetResponseFromBuffer checks and retrieves the response when it's delivered from redis pubsub
 func GetResponseFromBuffer(requestID string) interfaces.ReceivedEventInterface {
 	var responseArrived bool
 	var response interfaces.ReceivedEventInterface

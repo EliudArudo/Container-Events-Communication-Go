@@ -16,8 +16,8 @@ import (
 
 var myContainerInfo interfaces.ContainerInfoStruct
 
-// GetMyContainerInfo simply pics info from our local initialised
-// myContainerInfo global variable
+// GetMyContainerInfo gets all docker containers and stores this container's info in the global
+// myContainerInfo variable
 func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		initialise()
@@ -30,7 +30,8 @@ func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	return myContainerInfo
 }
 
-// GetMyOfflineContainerInfo fetches the container info without initialisation
+// GetMyOfflineContainerInfo get's container info from global myContainerInfo variable
+// If it does not exist, it reinitialises the container info fetch and returns it
 func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		if len(myContainerInfo.ID) > 0 {
@@ -127,36 +128,37 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 	return containerInfo
 }
 
-// FetchEventContainer uses service keyword to randomly select a container
-func FetchEventContainer() interfaces.ContainerInfoStruct {
+// TODO - make sure we can select event service here
+
+// FetchEventContainer returns a randomly selected container from target service
+func FetchEventContainer(serviceKeyword string) interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 
 	var selectedContainers []interfaces.ContainerInfoStruct
 
 	for _, container := range freshContainers {
 		lowerCaseContainerService := strings.ToLower(container.Service)
-		containerBelongsToSelectedService := strings.Contains(lowerCaseContainerService, "event")
+		serviceKeyword = strings.ToLower(serviceKeyword)
+		containerBelongsToSelectedService := strings.Contains(lowerCaseContainerService, serviceKeyword)
 
 		if containerBelongsToSelectedService {
 			selectedContainers = append(selectedContainers, container)
 		}
 	}
 
-	// const randomlySelectedContainer: ContainerInfoInterface = selectedContainers[Math.floor(Math.random() * selectedContainers.length)];
+	for {
+		if len(selectedContainers) > 0 {
+			break
+		}
+		FetchEventContainer(serviceKeyword)
+	}
+
 	rand.Seed(time.Now().Unix())
 	randomIndex := rand.Int() % len(selectedContainers)
 
-	var randomlySelectedContainer interfaces.ContainerInfoStruct = selectedContainers[randomIndex]
+	randomlySelectedContainer := selectedContainers[randomIndex]
 
 	selectedContainer := interfaces.ContainerInfoStruct{ID: randomlySelectedContainer.ID, Service: randomlySelectedContainer.Service}
-
-	for {
-		if len(selectedContainer.ID) > 0 {
-			break
-		} else {
-			FetchEventContainer()
-		}
-	}
 
 	return selectedContainer
 }

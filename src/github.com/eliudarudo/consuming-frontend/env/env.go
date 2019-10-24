@@ -7,20 +7,20 @@ import (
 	"github.com/eliudarudo/consuming-frontend/interfaces"
 )
 
-// EventService is what our event service is listening to
+// EventService is the default channel listened to from redis pubsub
 var EventService = "Event_Service"
 
-// ConsumingService is what the consuming containers are listening to
+// ConsumingService is the default channel for publishing redis messages
 var ConsumingService = "Consuming_Service"
 
-// RedisKeys connects us to our redis instance
+// RedisKeys are the default redis database keys
 var RedisKeys = interfaces.RedisEnvInterface{Host: "localhost", Port: 6379}
 
-// Port is our Gorilla mux http entry point
+// Port is our exposed container port
 var Port = 4000
 
-// InitialiseEnvironmentVariables initialises our env variables
-func InitialiseEnvironmentVariables() {
+// FetchEnvironmentVariables checks if we have environment variables set and defaults to default values above
+func FetchEnvironmentVariables() {
 	initialiseRedisEnv()
 	initialisePortEnv()
 	initialiseRedisChannelEnv()

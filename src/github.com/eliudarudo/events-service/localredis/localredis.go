@@ -12,36 +12,29 @@ import (
 
 var redisFilename = "redis/localredis.go"
 
-// RedisClient is what we export outside
-var RedisClient *redis.Client
-
-// InitialiseRedis is a function that fills up client with right info
-func InitialiseRedis() {
+// SetUpRedisPubSubListener checks if we're connected to redis and panics on failure
+// It also set's up goroutines to listen to redis subscription messages
+func SetUpRedisPubSubListener() {
 	redisURI := fmt.Sprintf("%v:%v", env.RedisKeys.Host, env.RedisKeys.Port)
 
-	RedisClient = redis.NewClient(&redis.Options{
+	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisURI,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-	// Error may occur here
-	// defer client.Close()
 
-	_, err := RedisClient.Ping().Result()
+	_, err := redisClient.Ping().Result()
 	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", redisFilename, "initialiseRedis", err.Error())
+		panic("Cannot connect to Redis")
 	}
 	logs.StatusFileMessageLogging("SUCCESS", redisFilename, "initialiseRedis", "Redis successfully set up")
 
-	// defer pubsub.Close()
-
-	pubsub := RedisClient.Subscribe(env.EventService)
+	pubsub := redisClient.Subscribe(env.EventService)
 	for {
 		message, err := pubsub.ReceiveMessage()
 		go func() {
 			if err != nil {
 				logs.StatusFileMessageLogging("FAILURE", redisFilename, "initialiseRedis", err.Error())
-				panic(err)
 			}
 
 			myContainerInfo := dockerapi.GetMyOfflineContainerInfo()

@@ -14,8 +14,7 @@ import (
 
 var filename = "logic/logic.go"
 
-// EventDeterminer determines which type of event
-// has been received through redis
+// EventDeterminer determines which type of event has been received through redis and channels it to respective handler functions
 func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStruct) {
 	var debug1 string
 	var event interfaces.ReceivedEventInterface
@@ -25,8 +24,6 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 	if err := json.Unmarshal([]byte(debug1), &event); err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
 	}
-
-	fmt.Printf("\n \n---------> event  received : %+v \n", event)
 
 	eventIsOurs := event.ServiceContainerID == containerInfo.ID && event.ServiceContainerService == containerInfo.Service
 
@@ -55,12 +52,8 @@ func recordAndAllocateTask(task interfaces.ReceivedEventInterface) {
 
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
 
-	fmt.Printf("\n \n---------> initRecordInfo  : %+v \n", initRecordInfo)
-
 	if len(initRecordInfo.ContainerID) > 0 && initRecordInfo.Existing {
 		responseInfo := getParsedResponseInfo(task, initRecordInfo)
-		fmt.Printf("\n \n---------> responseInfo  : %+v \n", responseInfo)
-
 		sendEventToContainer(responseInfo)
 		return
 	}

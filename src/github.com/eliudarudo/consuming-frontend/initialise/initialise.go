@@ -5,11 +5,11 @@ import (
 	"github.com/eliudarudo/consuming-frontend/localredis"
 )
 
-// Go initialises http,mongodb and redis
+// Go fetches environment variables, prints our container info, tests mongodb connection and
+// sets up our redis pubsub listeners
 func Go() {
-	env.InitialiseEnvironmentVariables()
-	// initialiseDocker()
-	localredis.InitialiseRedis()
-	// initialiseMongoDB()
-	initialiseRouter()
+	env.FetchEnvironmentVariables()
+	printMyContainerInfo()
+	localredis.SetUpRedisPubSubListener()
+	setUpRouter()
 }

@@ -1,16 +1,22 @@
 package initialise
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/eliudarudo/consuming-backend/dockerapi"
+	"github.com/eliudarudo/consuming-backend/logs"
 )
 
-func initialiseDocker() error {
+var filename = "initialise/dockerapi.go"
+
+func printMyContainerInfo() {
 	myContainerInfo := dockerapi.GetMyContainerInfo()
 	if len(myContainerInfo.ID) == 0 {
-		return errors.New("Docker containers not initialised")
+		logs.StatusFileMessageLogging("FAILURE", filename, "printMyContainerInfo", "Docker containers not initialised")
+		return
 	}
 
-	return nil
+	containerInfo := fmt.Sprintf("Docker is working, my container info is : \n %+v", myContainerInfo)
+
+	logs.StatusFileMessageLogging("SUCCESS", filename, "printMyContainerInfo", containerInfo)
 }

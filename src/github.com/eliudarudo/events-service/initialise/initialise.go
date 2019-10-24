@@ -6,10 +6,11 @@ import (
 	"github.com/eliudarudo/event-service/mongodb"
 )
 
-// Go initialises http,mongodb and redis
+// Go fetches environment variables, prints our container info, tests mongodb connection and
+// sets up our redis pubsub listeners
 func Go() {
-	env.InitialiseEnvironmentVariables()
-	initialiseDocker()
-	mongodb.InitialiseMongoDB()
-	localredis.InitialiseRedis()
+	env.FetchEnvironmentVariables()
+	printMyContainerInfo()
+	mongodb.TestMongoDBConnection()
+	localredis.SetUpRedisPubSubListener()
 }

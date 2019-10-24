@@ -2,7 +2,10 @@ package databaseops
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/eliudarudo/event-service/dockerapi"
@@ -13,19 +16,24 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var filename = "databaseops/databaseops.go"
 
-func getExistingRequestDocumentID(request string) string {
-
+func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 	mongoClient := mongodb.GetClient()
 
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("requests")
+	collection := mongoClient.Database(env.MongoKeys.Database).Collection(collectionName)
+
+	return collection
+}
+
+func getExistingRequestDocumentID(request string) string {
+	collection := getDatabaseCollection("requests")
 
 	foundRequest := interfaces.RequestModelInterface{}
 
-	// filter := bson.D{{"request", request}}
 	filter := bson.M{
 		"request": bson.M{
 			"$eq": request,
@@ -51,10 +59,8 @@ func getExistingTask(task interfaces.ReceivedEventInterface) interfaces.TaskMode
 	requestBodyID := getExistingRequestDocumentID(task.RequestBody)
 
 	if len(requestBodyID) > 0 {
-		mongoClient := mongodb.GetClient()
-		collection := mongoClient.Database(env.MongoKeys.Database).Collection("tasks")
+		collection := getDatabaseCollection("tasks")
 
-		// filter := bson.D{{"fromContainerService", task.Service}, {"task", task.Task}, {"subtask", task.Subtask}, {"requestBodyId", task.RequestID}}
 		filter := bson.M{
 			"fromContainerService": bson.M{
 				"$eq": task.Service,
@@ -74,8 +80,6 @@ func getExistingTask(task interfaces.ReceivedEventInterface) interfaces.TaskMode
 		if err != nil {
 			logs.StatusFileMessageLogging("FAILURE", filename, "getExistingTask", err.Error())
 		}
-
-		fmt.Printf("\n \n---------> existingTask  : %+v \n", existingTask)
 	}
 
 	return existingTask
@@ -91,15 +95,13 @@ func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) interfaces
 
 	response := interfaces.ResponseModelInterface{}
 
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("responses")
+	collection := getDatabaseCollection("responses")
 
 	docID, err := primitive.ObjectIDFromHex(toResponseID)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "getExistingParsedTask", err.Error())
 	}
 
-	// filter := bson.D{{"_id", docID}}
 	filter := bson.M{
 		"_id": bson.M{
 			"$eq": docID,
@@ -139,10 +141,8 @@ func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContain
 
 	response := interfaces.ResponseModelInterface{}
 
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("responses")
+	collection := getDatabaseCollection("responses")
 
-	// filter := bson.D{{"id", mongoDBTask.ToResponseBodyID}}
 	filter := bson.M{
 		"_id": bson.M{
 			"$eq": mongoDBTask.ToResponseBodyID,
@@ -161,9 +161,7 @@ func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContain
 
 func saveNewRequestAndGetID(requestBody string) string {
 
-	mongoClient := mongodb.GetClient()
-
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("requests")
+	collection := getDatabaseCollection("requests")
 
 	newRequest := interfaces.RequestModelInterface{Request: requestBody}
 
@@ -178,17 +176,37 @@ func saveNewRequestAndGetID(requestBody string) string {
 		return finalID
 	}
 
-	// newRequest.ID.Hex() is the way to access the string value
-	// How to find a document using its id
-	// https://kb.objectrocket.com/mongo-db/how-to-find-a-mongodb-document-by-its-bson-objectid-using-golang-452
-
 	return newRequest.ID.Hex()
 
 }
 
-func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyId string) interfaces.InitialisedRecordInfoInterface {
-	// TODO - Find a way to read json and put it in docker api
-	selectedContainer := dockerapi.FetchConsumingContainer("backend")
+func getTargetService(key string) (string, error) {
+	jsonFile, err := os.Open("tasks/task-maps.json")
+	if err != nil {
+		return "", err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var result map[string]string
+	json.Unmarshal([]byte(byteValue), &result)
+
+	return result[key], nil
+}
+
+func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyID string) interfaces.InitialisedRecordInfoInterface {
+
+	parsedTask := interfaces.InitialisedRecordInfoInterface{}
+
+	strigifiedTask := fmt.Sprintf("%v", funcTask.Task)
+	targetService, err := getTargetService(strigifiedTask)
+	if err != nil {
+		logs.StatusFileMessageLogging("FAILURE", filename, "recordNewInitialisedTaskWithRequestID", err.Error())
+		return parsedTask
+	}
+
+	selectedContainer := dockerapi.FetchConsumingContainer(targetService)
 	myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
 
 	newTask := interfaces.TaskModelInterface{
@@ -198,24 +216,23 @@ func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInte
 		FromReceivedTime:        time.Now(),
 		Task:                    funcTask.Task,
 		Subtask:                 funcTask.Subtask,
-		RequestBodyID:           requestBodyId,
+		RequestBodyID:           requestBodyID,
 		ToContainerID:           selectedContainer.ID,
 		ToContainerService:      selectedContainer.Service,
 		ServiceContainerID:      myContainerInfo.ID,
 		ServiceContainerService: myContainerInfo.Service,
 	}
 
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("tasks")
+	collection := getDatabaseCollection("tasks")
 
 	newTask.ID = primitive.NewObjectID()
 
-	_, err := collection.InsertOne(context.TODO(), newTask)
+	_, err = collection.InsertOne(context.TODO(), newTask)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "recordNewInitialisedTaskWithRequestID", err.Error())
 	}
 
-	parsedTask := getNewParsedTask(newTask, selectedContainer)
+	parsedTask = getNewParsedTask(newTask, selectedContainer)
 	return parsedTask
 }
 
@@ -242,8 +259,7 @@ func getParsedResponse(funcResponse interfaces.ReceivedEventInterface, oldTask i
 
 func saveNewResponseAndGetID(funcResponse interfaces.ReceivedEventInterface) string {
 
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("responses")
+	collection := getDatabaseCollection("responses")
 
 	newResponse := interfaces.ResponseModelInterface{Response: funcResponse.ResponseBody}
 	newResponse.ID = primitive.NewObjectID()
@@ -259,26 +275,18 @@ func saveNewResponseAndGetID(funcResponse interfaces.ReceivedEventInterface) str
 
 func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, receivedTime time.Time, responseBodyID string) {
 	fromSentTime := time.Now()
-
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("tasks")
+	collection := getDatabaseCollection("tasks")
 
 	docID, err := primitive.ObjectIDFromHex(funcResponse.RecordID)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "getExistingParsedTask", err.Error())
 	}
 
-	// filter := bson.D{{"_id", docID}}
 	filter := bson.M{
 		"_id": bson.M{
 			"$eq": docID,
 		},
 	}
-
-	// update := bson.D{
-	// 	{"toReceivedTime", receivedTime},
-	// 	{"toResponseBodyId", responseBodyID},
-	// 	{"fromSentTime", fromSentTime}}
 
 	update := bson.M{
 		"$set": bson.M{
@@ -294,10 +302,8 @@ func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, received
 	}
 }
 
-// RecordNewTaskInDB -
+// RecordNewTaskInDB checks if there's an existing task and if not, records a new task and request
 func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) interfaces.InitialisedRecordInfoInterface {
-
-	fmt.Printf("\n \n--------->  task  : %+v \n", task)
 	existingTask := getExistingTask(task)
 
 	if len(existingTask.FromRequestID) > 0 {
@@ -312,13 +318,13 @@ func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) interfaces.Initia
 	return initRecordInfo
 }
 
-// CompleteExistingTaskRecordInDB -
+// CompleteExistingTaskRecordInDB gets response and returns existing response if it exists, otherwise it stores a new response
+// and returns parsed object
 func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterface) (interfaces.EventInterface, error) {
 
 	preexistingResponse := interfaces.ResponseModelInterface{}
 
-	mongoClient := mongodb.GetClient()
-	collection := mongoClient.Database(env.MongoKeys.Database).Collection("responses")
+	collection := getDatabaseCollection("responses")
 
 	// filter := bson.D{{"response", funcResponse.ResponseBody}}
 	filter := bson.M{
@@ -340,14 +346,13 @@ func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterfa
 
 	task := interfaces.TaskModelInterface{}
 
-	collection = mongoClient.Database(env.MongoKeys.Database).Collection("tasks")
+	collection = getDatabaseCollection("tasks")
 
 	docID, err := primitive.ObjectIDFromHex(funcResponse.RecordID)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
 	}
 
-	// filter = bson.D{{"_id", docID}}
 	filter = bson.M{
 		"_id": bson.M{
 			"$eq": docID,

@@ -3,6 +3,8 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -84,13 +86,33 @@ func determineSubtask(task interfaces.TaskType, requestBody map[string]interface
 	return subtask
 }
 
+func getTargetService(key string) (string, error) {
+	jsonFile, err := os.Open("tasks/task-maps.json")
+	if err != nil {
+		return "", err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var result map[string]string
+	json.Unmarshal([]byte(byteValue), &result)
+
+	return result[key], nil
+}
+
 func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.TaskStruct, error) {
 	task := determineTask(requestBody)
 	subtask := determineSubtask(task, requestBody)
 
 	requestID := uuid.New().String()
 
-	chosenContainer := dockerapi.FetchEventContainer()
+	strigifiedTask := fmt.Sprintf("%v", task)
+	targetService, err := getTargetService(strigifiedTask)
+	if err != nil {
+		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
+	}
+	chosenContainer := dockerapi.FetchEventContainer(targetService)
 
 	marshalledRequestBody, err := json.Marshal(requestBody)
 	if err != nil {
@@ -145,7 +167,7 @@ func sendTaskToEventsService(task interfaces.TaskStruct) {
 	}
 }
 
-// TaskController takes request body and containerInfo and returns result
+// TaskController takes request body from http requests, sends it through redis pubsub and waits for response on the same channel
 func TaskController(decodedRequestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.ResultStruct, error) {
 	task, err := taskDeterminer(decodedRequestBody, containerInfo)
 	if err != nil {

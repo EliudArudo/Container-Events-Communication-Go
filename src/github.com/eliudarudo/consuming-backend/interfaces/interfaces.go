@@ -2,19 +2,13 @@ package interfaces
 
 import "encoding/json"
 
-// ContainerInfoStruct gets container ID and Service info
+// ContainerInfoStruct maps a docker container ID and Service
 type ContainerInfoStruct struct {
 	ID      string
 	Service string
 }
 
-// ResultStruct is what TaskController returns after computation
-type ResultStruct struct {
-	Message string `json:"message"`
-	Result  string `json:"result"`
-}
-
-// TaskType either 'Number' or 'String'
+// TaskType determines which service is selected
 type TaskType string
 
 const (
@@ -38,17 +32,17 @@ const (
 	DIVIDE = "DIVIDE"
 )
 
-// EventTaskType either 'Task' or 'Response'
+// EventTaskType determines next action on event being received from consuming containers
 type EventTaskType int
 
 const (
-	// TASK has requestBody
+	// TASK determined by presense of requestBody field in ReceivedEventInterface object
 	TASK EventTaskType = iota
-	// RESPONSE has responseBody
+	// RESPONSE determined by presense of responseBody field in ReceivedEventInterface object
 	RESPONSE
 )
 
-// TaskStruct is the determined task to be sent to event service
+// TaskStruct is the most basic form of a Task for internal processing
 type TaskStruct struct {
 	Task                    TaskType    `json:"task"`
 	Subtask                 SubTaskType `json:"subtask"`
@@ -60,12 +54,12 @@ type TaskStruct struct {
 	ServiceContainerService string      `json:"serviceContainerService"`
 }
 
-// MarshalBinary -
+// MarshalBinary marshals []byte
 func (e *TaskStruct) MarshalBinary() ([]byte, error) {
 	return json.Marshal(e)
 }
 
-// UnmarshalBinary -
+// UnmarshalBinary unmarshals a []byte
 func (e *TaskStruct) UnmarshalBinary(data []byte) error {
 	if err := json.Unmarshal(data, &e); err != nil {
 		return err
@@ -74,7 +68,7 @@ func (e *TaskStruct) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// ReceivedEventInterface is for events received
+// ReceivedEventInterface is structure of object we've just received from redis pubsub
 type ReceivedEventInterface struct {
 	RequestID               string      `json:"requestId"`
 	ContainerID             string      `json:"containerId"`
@@ -88,7 +82,7 @@ type ReceivedEventInterface struct {
 	ServiceContainerService string      `json:"serviceContainerService"`
 }
 
-// RedisEnvInterface is an interface for our redis env variables
+// RedisEnvInterface defines Host and Port fields for redis keys
 type RedisEnvInterface struct {
 	Host string
 	Port int
