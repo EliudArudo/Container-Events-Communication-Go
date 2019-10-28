@@ -75,7 +75,7 @@ func determineSubtask(task interfaces.TaskType, requestBody map[string]interface
 		if isAddition {
 			subtask = interfaces.ADD
 		} else if isSubtration {
-			subtask = interfaces.ADD
+			subtask = interfaces.SUBTRACT
 		} else if isMultiplication {
 			subtask = interfaces.MULTIPLY
 		} else if isDivision {
