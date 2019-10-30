@@ -29,7 +29,7 @@ func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 	return collection
 }
 
-func getExistingRequestDocumentID(request string) string {
+func getExistingRequestDocumentID(request string) *string {
 	collection := getDatabaseCollection("requests")
 
 	foundRequest := interfaces.RequestModelInterface{}
@@ -50,13 +50,13 @@ func getExistingRequestDocumentID(request string) string {
 		finalID = foundRequest.ID.Hex()
 	}
 
-	return finalID
+	return &finalID
 }
 
-func getExistingTask(task interfaces.ReceivedEventInterface) interfaces.TaskModelInterface {
+func getExistingTask(task interfaces.ReceivedEventInterface) *interfaces.TaskModelInterface {
 	existingTask := interfaces.TaskModelInterface{}
 
-	requestBodyID := getExistingRequestDocumentID(task.RequestBody)
+	requestBodyID := *(getExistingRequestDocumentID(task.RequestBody))
 
 	if len(requestBodyID) > 0 {
 		collection := getDatabaseCollection("tasks")
@@ -82,12 +82,12 @@ func getExistingTask(task interfaces.ReceivedEventInterface) interfaces.TaskMode
 		}
 	}
 
-	return existingTask
+	return &existingTask
 }
 
-func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) interfaces.InitialisedRecordInfoInterface {
+func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) *interfaces.InitialisedRecordInfoInterface {
 	toResponseID := mongoDBTask.ToResponseBodyID
-	parsedTask := interfaces.InitialisedRecordInfoInterface{}
+	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
 	if len(toResponseID) == 0 {
 		return parsedTask
@@ -112,7 +112,7 @@ func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) interfaces
 		logs.StatusFileMessageLogging("FAILURE", filename, "getExistingParsedTask", err.Error())
 	}
 
-	parsedTask = interfaces.InitialisedRecordInfoInterface{
+	parsedTask = &interfaces.InitialisedRecordInfoInterface{
 		ContainerID:             mongoDBTask.FromContainerID,
 		ContainerService:        mongoDBTask.FromContainerService,
 		RecordID:                mongoDBTask.ID.Hex(),
@@ -126,7 +126,7 @@ func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) interfaces
 	return parsedTask
 }
 
-func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContainerInfo interfaces.ContainerInfoStruct) interfaces.InitialisedRecordInfoInterface {
+func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContainerInfo interfaces.ContainerInfoStruct) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := interfaces.InitialisedRecordInfoInterface{
 		ContainerID:             mongoDBTask.FromContainerID,
 		ContainerService:        mongoDBTask.FromContainerService,
@@ -156,7 +156,7 @@ func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContain
 		parsedTask.ResponseBody = response.Response
 	}
 
-	return parsedTask
+	return &parsedTask
 }
 
 func saveNewRequestAndGetID(requestBody string) string {
@@ -195,9 +195,9 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
-func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyID string) interfaces.InitialisedRecordInfoInterface {
+func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
 
-	parsedTask := interfaces.InitialisedRecordInfoInterface{}
+	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
 	strigifiedTask := fmt.Sprintf("%v", funcTask.Task)
 	targetService, err := getTargetService(strigifiedTask)
@@ -232,11 +232,11 @@ func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInte
 		logs.StatusFileMessageLogging("FAILURE", filename, "recordNewInitialisedTaskWithRequestID", err.Error())
 	}
 
-	parsedTask = getNewParsedTask(newTask, selectedContainer)
+	parsedTask = getNewParsedTask(newTask, *selectedContainer)
 	return parsedTask
 }
 
-func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) interfaces.InitialisedRecordInfoInterface {
+func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
 	requestBodyID := saveNewRequestAndGetID(task.RequestBody)
 
 	initialisedInfo := recordNewInitialisedTaskWithRequestID(task, requestBodyID)
@@ -246,7 +246,7 @@ func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) interfaces.
 	return initialisedInfo
 }
 
-func getParsedResponse(funcResponse interfaces.ReceivedEventInterface, oldTask interfaces.TaskModelInterface) interfaces.EventInterface {
+func getParsedResponse(funcResponse interfaces.ReceivedEventInterface, oldTask interfaces.TaskModelInterface) *interfaces.EventInterface {
 	response := interfaces.EventInterface{
 		RequestID:    oldTask.FromRequestID,
 		ContainerID:  oldTask.FromContainerID,
@@ -254,7 +254,7 @@ func getParsedResponse(funcResponse interfaces.ReceivedEventInterface, oldTask i
 		ResponseBody: funcResponse.ResponseBody,
 	}
 
-	return response
+	return &response
 }
 
 func saveNewResponseAndGetID(funcResponse interfaces.ReceivedEventInterface) string {
@@ -303,11 +303,11 @@ func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, received
 }
 
 // RecordNewTaskInDB checks if there's an existing task and if not, records a new task and request
-func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) interfaces.InitialisedRecordInfoInterface {
+func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
 	existingTask := getExistingTask(task)
 
 	if len(existingTask.FromRequestID) > 0 {
-		parsedTask := getExistingParsedTask(existingTask)
+		parsedTask := getExistingParsedTask(*existingTask)
 		parsedTask.Existing = true
 
 		return parsedTask
@@ -320,7 +320,7 @@ func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) interfaces.Initia
 
 // CompleteExistingTaskRecordInDB gets response and returns existing response if it exists, otherwise it stores a new response
 // and returns parsed object
-func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterface) (interfaces.EventInterface, error) {
+func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterface) (*interfaces.EventInterface, error) {
 
 	preexistingResponse := interfaces.ResponseModelInterface{}
 

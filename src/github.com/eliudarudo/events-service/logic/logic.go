@@ -59,12 +59,12 @@ func recordAndAllocateTask(task interfaces.ReceivedEventInterface) {
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
 
 	if len(initRecordInfo.ContainerID) > 0 && initRecordInfo.Existing {
-		responseInfo := getParsedResponseInfo(task, initRecordInfo)
-		sendEventToContainer(responseInfo)
+		responseInfo := getParsedResponseInfo(task, *initRecordInfo)
+		sendEventToContainer(*responseInfo)
 		return
 	}
 
-	allocateTaskToConsumingContainer(initRecordInfo)
+	allocateTaskToConsumingContainer(*initRecordInfo)
 }
 
 func modifyDatabaseAndSendBackResponse(response interfaces.ReceivedEventInterface) {
@@ -73,10 +73,10 @@ func modifyDatabaseAndSendBackResponse(response interfaces.ReceivedEventInterfac
 		logs.StatusFileMessageLogging("FAILURE", filename, "modifyDatabaseAndSendBackResponse", err.Error())
 	}
 
-	sendEventToContainer(responseInfo)
+	sendEventToContainer(*responseInfo)
 }
 
-func getParsedResponseInfo(task interfaces.ReceivedEventInterface, existingRecordInfo interfaces.InitialisedRecordInfoInterface) interfaces.EventInterface {
+func getParsedResponseInfo(task interfaces.ReceivedEventInterface, existingRecordInfo interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	parsedResponseInfo := interfaces.EventInterface{
 		RequestID:    task.RequestID,
 		ContainerID:  task.ContainerID,
@@ -84,13 +84,13 @@ func getParsedResponseInfo(task interfaces.ReceivedEventInterface, existingRecor
 		ResponseBody: existingRecordInfo.ResponseBody,
 	}
 
-	return parsedResponseInfo
+	return &parsedResponseInfo
 }
 
 func allocateTaskToConsumingContainer(initRecordInfo interfaces.InitialisedRecordInfoInterface) {
 	eventToSend := parseEventFromRecordInfo(initRecordInfo)
 
-	sendEventToContainer(eventToSend)
+	sendEventToContainer(*eventToSend)
 }
 
 func sendEventToContainer(eventInfo interfaces.EventInterface) {
@@ -126,7 +126,7 @@ func sendEventToContainer(eventInfo interfaces.EventInterface) {
 	}
 }
 
-func parseEventFromRecordInfo(initRecordInfo interfaces.InitialisedRecordInfoInterface) interfaces.EventInterface {
+func parseEventFromRecordInfo(initRecordInfo interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	event := interfaces.EventInterface{
 		ContainerID:             initRecordInfo.ChosenContainerID,
 		Service:                 initRecordInfo.ChosenContainerService,
@@ -138,5 +138,5 @@ func parseEventFromRecordInfo(initRecordInfo interfaces.InitialisedRecordInfoInt
 		RequestBody:             initRecordInfo.RequestBody,
 	}
 
-	return event
+	return &event
 }

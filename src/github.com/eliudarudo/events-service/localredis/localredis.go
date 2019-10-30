@@ -38,7 +38,7 @@ func SetUpRedisPubSubListener() {
 			}
 
 			myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
-			logic.EventDeterminer(message.Payload, myContainerInfo)
+			logic.EventDeterminer(message.Payload, *myContainerInfo)
 		}()
 	}
 

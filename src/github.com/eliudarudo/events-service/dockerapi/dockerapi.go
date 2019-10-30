@@ -18,7 +18,7 @@ var myContainerInfo interfaces.ContainerInfoStruct
 
 // GetMyContainerInfo gets all docker containers and stores this container's info in the global
 // myContainerInfo variable
-func GetMyContainerInfo() interfaces.ContainerInfoStruct {
+func GetMyContainerInfo() *interfaces.ContainerInfoStruct {
 	for {
 		initialise()
 
@@ -27,12 +27,12 @@ func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 		}
 	}
 
-	return myContainerInfo
+	return &myContainerInfo
 }
 
 // GetMyOfflineContainerInfo get's container info from global myContainerInfo variable
 // If it does not exist, it reinitialises the container info fetch and returns it
-func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
+func GetMyOfflineContainerInfo() *interfaces.ContainerInfoStruct {
 	for {
 		if len(myContainerInfo.ID) > 0 {
 			break
@@ -40,7 +40,7 @@ func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 		GetMyContainerInfo()
 	}
 
-	return myContainerInfo
+	return &myContainerInfo
 }
 
 func getParsedContainers(containerArray []types.Container) ([]interfaces.ContainerInfoStruct, error) {
@@ -88,7 +88,7 @@ func initialise() {
 	}
 
 	var containerArray []types.Container
-	var containerInfo interfaces.ContainerInfoStruct
+	containerInfo := &interfaces.ContainerInfoStruct{}
 
 	for {
 		containerArray, _ = cli.ContainerList(context.Background(), types.ContainerListOptions{})
@@ -99,10 +99,10 @@ func initialise() {
 		}
 	}
 
-	myContainerInfo = containerInfo
+	myContainerInfo = *containerInfo
 }
 
-func getMyContainerInfoFromContainerArray(containerArray []types.Container) interfaces.ContainerInfoStruct {
+func getMyContainerInfoFromContainerArray(containerArray []types.Container) *interfaces.ContainerInfoStruct {
 	containerInfo := interfaces.ContainerInfoStruct{}
 
 	shortContainerID, _ := os.Hostname()
@@ -125,11 +125,11 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 		}
 	}
 
-	return containerInfo
+	return &containerInfo
 }
 
 // FetchConsumingContainer returns a randomly selected container from target service
-func FetchConsumingContainer(containerServiceKeyword string) interfaces.ContainerInfoStruct {
+func FetchConsumingContainer(containerServiceKeyword string) *interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 
 	var selectedContainers []interfaces.ContainerInfoStruct
@@ -158,5 +158,5 @@ func FetchConsumingContainer(containerServiceKeyword string) interfaces.Containe
 		}
 	}
 
-	return selectedContainer
+	return &selectedContainer
 }
