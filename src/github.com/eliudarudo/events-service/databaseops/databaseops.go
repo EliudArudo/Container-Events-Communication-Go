@@ -53,23 +53,23 @@ func getExistingRequestDocumentID(request string) *string {
 	return &finalID
 }
 
-func getExistingTask(task interfaces.ReceivedEventInterface) *interfaces.TaskModelInterface {
+func getExistingTask(task *(interfaces.ReceivedEventInterface)) *interfaces.TaskModelInterface {
 	existingTask := interfaces.TaskModelInterface{}
 
-	requestBodyID := *(getExistingRequestDocumentID(task.RequestBody))
+	requestBodyID := *(getExistingRequestDocumentID((*task).RequestBody))
 
 	if len(requestBodyID) > 0 {
 		collection := getDatabaseCollection("tasks")
 
 		filter := bson.M{
 			"fromContainerService": bson.M{
-				"$eq": task.Service,
+				"$eq": (*task).Service,
 			},
 			"task": bson.M{
-				"$eq": task.Task,
+				"$eq": (*task).Task,
 			},
 			"subtask": bson.M{
-				"$eq": task.Subtask,
+				"$eq": (*task).Subtask,
 			},
 			"requestBodyId": bson.M{
 				"$eq": requestBodyID,
@@ -85,8 +85,8 @@ func getExistingTask(task interfaces.ReceivedEventInterface) *interfaces.TaskMod
 	return &existingTask
 }
 
-func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) *interfaces.InitialisedRecordInfoInterface {
-	toResponseID := mongoDBTask.ToResponseBodyID
+func getExistingParsedTask(mongoDBTask *(interfaces.TaskModelInterface)) *interfaces.InitialisedRecordInfoInterface {
+	toResponseID := (*mongoDBTask).ToResponseBodyID
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
 	if len(toResponseID) == 0 {
@@ -113,13 +113,13 @@ func getExistingParsedTask(mongoDBTask interfaces.TaskModelInterface) *interface
 	}
 
 	parsedTask = &interfaces.InitialisedRecordInfoInterface{
-		ContainerID:             mongoDBTask.FromContainerID,
-		ContainerService:        mongoDBTask.FromContainerService,
-		RecordID:                mongoDBTask.ID.Hex(),
-		Task:                    mongoDBTask.Task,
-		Subtask:                 mongoDBTask.Subtask,
-		ServiceContainerID:      mongoDBTask.ServiceContainerID,
-		ServiceContainerService: mongoDBTask.ServiceContainerService,
+		ContainerID:             (*mongoDBTask).FromContainerID,
+		ContainerService:        (*mongoDBTask).FromContainerService,
+		RecordID:                (*mongoDBTask).ID.Hex(),
+		Task:                    (*mongoDBTask).Task,
+		Subtask:                 (*mongoDBTask).Subtask,
+		ServiceContainerID:      (*mongoDBTask).ServiceContainerID,
+		ServiceContainerService: (*mongoDBTask).ServiceContainerService,
 		ResponseBody:            response.Response,
 	}
 
@@ -195,10 +195,10 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
-func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
+func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventInterface), requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
-	strigifiedTask := fmt.Sprintf("%v", funcTask.Task)
+	strigifiedTask := fmt.Sprintf("%v", (*funcTask).Task)
 	targetService, err := getTargetService(strigifiedTask)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "recordNewInitialisedTaskWithRequestID", err.Error())
@@ -209,12 +209,12 @@ func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInte
 	myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
 
 	newTask := interfaces.TaskModelInterface{
-		FromRequestID:           funcTask.RequestID,
-		FromContainerID:         funcTask.ContainerID,
-		FromContainerService:    funcTask.Service,
+		FromRequestID:           (*funcTask).RequestID,
+		FromContainerID:         (*funcTask).ContainerID,
+		FromContainerService:    (*funcTask).Service,
 		FromReceivedTime:        time.Now(),
-		Task:                    funcTask.Task,
-		Subtask:                 funcTask.Subtask,
+		Task:                    (*funcTask).Task,
+		Subtask:                 (*funcTask).Subtask,
 		RequestBodyID:           requestBodyID,
 		ToContainerID:           selectedContainer.ID,
 		ToContainerService:      selectedContainer.Service,
@@ -235,10 +235,9 @@ func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInte
 	return parsedTask
 }
 
-func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
-	requestBodyID := saveNewRequestAndGetID(task.RequestBody)
+func recordNewTaskAndRequest(task *(interfaces.ReceivedEventInterface)) *interfaces.InitialisedRecordInfoInterface {
+	requestBodyID := saveNewRequestAndGetID((*task).RequestBody)
 
-	/* ---> */
 	initialisedInfo := recordNewInitialisedTaskWithRequestID(task, requestBodyID)
 
 	initialisedInfo.RequestBody = task.RequestBody
@@ -246,22 +245,22 @@ func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) *interfaces
 	return initialisedInfo
 }
 
-func getParsedResponse(funcResponse interfaces.ReceivedEventInterface, oldTask interfaces.TaskModelInterface) *interfaces.EventInterface {
+func getParsedResponse(funcResponse *(interfaces.ReceivedEventInterface), oldTask *(interfaces.TaskModelInterface)) *interfaces.EventInterface {
 	response := interfaces.EventInterface{
-		RequestID:    oldTask.FromRequestID,
-		ContainerID:  oldTask.FromContainerID,
-		Service:      oldTask.FromContainerService,
-		ResponseBody: funcResponse.ResponseBody,
+		RequestID:    (*oldTask).FromRequestID,
+		ContainerID:  (*oldTask).FromContainerID,
+		Service:      (*oldTask).FromContainerService,
+		ResponseBody: (*funcResponse).ResponseBody,
 	}
 
 	return &response
 }
 
-func saveNewResponseAndGetID(funcResponse interfaces.ReceivedEventInterface) string {
+func saveNewResponseAndGetID(funcResponse *(interfaces.ReceivedEventInterface)) string {
 
 	collection := getDatabaseCollection("responses")
 
-	newResponse := interfaces.ResponseModelInterface{Response: funcResponse.ResponseBody}
+	newResponse := interfaces.ResponseModelInterface{Response: (*funcResponse).ResponseBody}
 	newResponse.ID = primitive.NewObjectID()
 
 	_, err := collection.InsertOne(context.TODO(), newResponse)
@@ -273,11 +272,11 @@ func saveNewResponseAndGetID(funcResponse interfaces.ReceivedEventInterface) str
 	return newResponse.ID.Hex()
 }
 
-func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, receivedTime time.Time, responseBodyID string) {
+func completeRecordInDB(funcResponse *(interfaces.ReceivedEventInterface), receivedTime time.Time, responseBodyID string) {
 	fromSentTime := time.Now()
 	collection := getDatabaseCollection("tasks")
 
-	docID, err := primitive.ObjectIDFromHex(funcResponse.RecordID)
+	docID, err := primitive.ObjectIDFromHex((*funcResponse).RecordID)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "getExistingParsedTask", err.Error())
 	}
@@ -303,18 +302,16 @@ func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, received
 }
 
 // RecordNewTaskInDB checks if there's an existing task and if not, records a new task and request
-func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
-	/* ---> */
+func RecordNewTaskInDB(task *(interfaces.ReceivedEventInterface)) *interfaces.InitialisedRecordInfoInterface {
 	existingTask := getExistingTask(task)
 
 	if len(existingTask.FromRequestID) > 0 {
-		parsedTask := getExistingParsedTask(*existingTask)
+		parsedTask := getExistingParsedTask(existingTask)
 		parsedTask.Existing = true
 
 		return parsedTask
 	}
 
-	/* ---> */
 	initRecordInfo := recordNewTaskAndRequest(task)
 
 	return initRecordInfo
@@ -322,51 +319,66 @@ func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) *interfaces.Initi
 
 // CompleteExistingTaskRecordInDB gets response and returns existing response if it exists, otherwise it stores a new response
 // and returns parsed object
-func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterface) (*interfaces.EventInterface, error) {
+func CompleteExistingTaskRecordInDB(funcResponse *(interfaces.ReceivedEventInterface)) (*interfaces.EventInterface, error) {
 
 	preexistingResponse := interfaces.ResponseModelInterface{}
 
-	collection := getDatabaseCollection("responses")
-	filter := bson.M{
-		"response": bson.M{
-			"$eq": funcResponse.ResponseBody,
-		},
-	}
+	channel1 := make(chan bool)
+	channel2 := make(chan *(interfaces.TaskModelInterface))
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&preexistingResponse)
-	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
-	}
+	fmt.Println("Starting tasks")
 
-	if len(preexistingResponse.Response) == 0 {
-		toReceivedTime := time.Now()
-		/* ---> */
-		toResponseBodyID := saveNewResponseAndGetID(funcResponse)
-		/* ---> */
-		completeRecordInDB(funcResponse, toReceivedTime, toResponseBodyID)
-	}
+	go func(funcResponse *(interfaces.ReceivedEventInterface)) {
+		collection := getDatabaseCollection("responses")
+		filter := bson.M{
+			"response": bson.M{
+				"$eq": (*funcResponse).ResponseBody,
+			},
+		}
 
-	task := interfaces.TaskModelInterface{}
+		err := collection.FindOne(context.TODO(), filter).Decode(&preexistingResponse)
+		if err != nil {
+			logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
+		}
 
-	collection = getDatabaseCollection("tasks")
+		if len(preexistingResponse.Response) == 0 {
+			toReceivedTime := time.Now()
+			toResponseBodyID := saveNewResponseAndGetID(funcResponse)
+			completeRecordInDB(funcResponse, toReceivedTime, toResponseBodyID)
+		}
 
-	docID, err := primitive.ObjectIDFromHex(funcResponse.RecordID)
-	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
-	}
+		channel1 <- true
 
-	filter = bson.M{
-		"_id": bson.M{
-			"$eq": docID,
-		},
-	}
+	}(funcResponse)
 
-	err = collection.FindOne(context.TODO(), filter).Decode(&task)
-	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
-	}
+	go func(funcResponse *(interfaces.ReceivedEventInterface)) {
+		var task interfaces.TaskModelInterface
 
+		collection := getDatabaseCollection("tasks")
+
+		docID, err := primitive.ObjectIDFromHex((*funcResponse).RecordID)
+		if err != nil {
+			logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
+		}
+
+		filter := bson.M{
+			"_id": bson.M{
+				"$eq": docID,
+			},
+		}
+
+		err = collection.FindOne(context.TODO(), filter).Decode(&task)
+		if err != nil {
+			logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
+		}
+
+		channel2 <- &task
+
+	}(funcResponse)
+
+	<-channel1
+	newTask := <-channel2
 	/* ---> funcResponse and task */
-	response := getParsedResponse(funcResponse, task)
+	response := getParsedResponse(funcResponse, newTask)
 	return response, nil
 }

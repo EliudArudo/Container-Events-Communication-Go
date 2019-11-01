@@ -15,11 +15,11 @@ import (
 var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event has been received through redis and channels it to respective handler functions
-func EventDeterminer(event interfaces.ReceivedEventInterface) {
+func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 
 	var taskType interfaces.EventTaskType
 
-	if len(event.ResponseBody) > 0 {
+	if len((*event).ResponseBody) > 0 {
 		taskType = interfaces.RESPONSE
 	} else {
 		taskType = interfaces.TASK
@@ -27,46 +27,41 @@ func EventDeterminer(event interfaces.ReceivedEventInterface) {
 
 	switch taskType {
 	case interfaces.TASK:
-		/* ---> */
 		recordAndAllocateTask(event)
 	case interfaces.RESPONSE:
-		/* ---> */
 		modifyDatabaseAndSendBackResponse(event)
 	}
 
 }
 
-func recordAndAllocateTask(task interfaces.ReceivedEventInterface) {
+func recordAndAllocateTask(task *(interfaces.ReceivedEventInterface)) {
 
-	/* ---> */
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
 
 	if len(initRecordInfo.ContainerID) > 0 && initRecordInfo.Existing {
-		/* ---> */
-		responseInfo := getParsedResponseInfo(task, *initRecordInfo)
-		sendEventToContainer(*responseInfo)
+		responseInfo := getParsedResponseInfo(task, initRecordInfo)
+		sendEventToContainer(responseInfo)
 		return
 	}
 
 	allocateTaskToConsumingContainer(*initRecordInfo)
 }
 
-func modifyDatabaseAndSendBackResponse(response interfaces.ReceivedEventInterface) {
-	/* ---> */
+func modifyDatabaseAndSendBackResponse(response *(interfaces.ReceivedEventInterface)) {
 	responseInfo, err := databaseops.CompleteExistingTaskRecordInDB(response)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "modifyDatabaseAndSendBackResponse", err.Error())
 	}
 
-	sendEventToContainer(*responseInfo)
+	sendEventToContainer(responseInfo)
 }
 
-func getParsedResponseInfo(task interfaces.ReceivedEventInterface, existingRecordInfo interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
+func getParsedResponseInfo(task *(interfaces.ReceivedEventInterface), existingRecordInfo *interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	parsedResponseInfo := interfaces.EventInterface{
-		RequestID:    task.RequestID,
-		ContainerID:  task.ContainerID,
-		Service:      task.Service,
-		ResponseBody: existingRecordInfo.ResponseBody,
+		RequestID:    (*task).RequestID,
+		ContainerID:  (*task).ContainerID,
+		Service:      (*task).Service,
+		ResponseBody: (*existingRecordInfo).ResponseBody,
 	}
 
 	return &parsedResponseInfo
@@ -75,10 +70,10 @@ func getParsedResponseInfo(task interfaces.ReceivedEventInterface, existingRecor
 func allocateTaskToConsumingContainer(initRecordInfo interfaces.InitialisedRecordInfoInterface) {
 	eventToSend := parseEventFromRecordInfo(initRecordInfo)
 
-	sendEventToContainer(*eventToSend)
+	sendEventToContainer(eventToSend)
 }
 
-func sendEventToContainer(eventInfo interfaces.EventInterface) {
+func sendEventToContainer(eventInfo *(interfaces.EventInterface)) {
 
 	redisURI := fmt.Sprintf("%v:%v", env.RedisKeys.Host, env.RedisKeys.Port)
 
@@ -90,16 +85,16 @@ func sendEventToContainer(eventInfo interfaces.EventInterface) {
 	defer publisher.Close()
 
 	exportedTask := interfaces.ReceivedEventInterface{
-		RequestID:               eventInfo.RequestID,
-		Task:                    eventInfo.Task,
-		Subtask:                 eventInfo.Subtask,
-		ContainerID:             eventInfo.ContainerID,
-		Service:                 eventInfo.Service,
-		RecordID:                eventInfo.RecordID,
-		ServiceContainerID:      eventInfo.ServiceContainerID,
-		ServiceContainerService: eventInfo.ServiceContainerService,
-		ResponseBody:            eventInfo.ResponseBody,
-		RequestBody:             eventInfo.RequestBody,
+		RequestID:               (*eventInfo).RequestID,
+		Task:                    (*eventInfo).Task,
+		Subtask:                 (*eventInfo).Subtask,
+		ContainerID:             (*eventInfo).ContainerID,
+		Service:                 (*eventInfo).Service,
+		RecordID:                (*eventInfo).RecordID,
+		ServiceContainerID:      (*eventInfo).ServiceContainerID,
+		ServiceContainerService: (*eventInfo).ServiceContainerService,
+		ResponseBody:            (*eventInfo).ResponseBody,
+		RequestBody:             (*eventInfo).RequestBody,
 	}
 
 	jsonifiedTask, _ := json.Marshal(exportedTask)

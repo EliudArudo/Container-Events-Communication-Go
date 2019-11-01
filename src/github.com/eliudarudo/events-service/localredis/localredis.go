@@ -48,8 +48,7 @@ func SetUpRedisPubSubListener() {
 		}
 
 		go func() {
-			/* ---> */
-			logic.EventDeterminer(event)
+			logic.EventDeterminer(&event)
 		}()
 	}
 
