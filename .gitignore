@@ -6,5 +6,5 @@ golang.org
 
 *.exe
 
-CODE COMMAND HELPERS.txt
-Performance tuning.txt
+*.txt
+

@@ -15,23 +15,7 @@ import (
 var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event has been received through redis and channels it to respective handler functions
-func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStruct) {
-	var debug1 string
-	var event interfaces.ReceivedEventInterface
-
-	json.Unmarshal([]byte(sentEvent), &event)
-
-	// If event is still unmarshalled
-	if len(event.ContainerID) == 0 {
-		json.Unmarshal([]byte(sentEvent), &debug1)
-
-		if err := json.Unmarshal([]byte(debug1), &event); err != nil {
-			logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
-		}
-	}
-	// else event is already marshalled
-
-	eventIsOurs := event.ServiceContainerID == containerInfo.ID && event.ServiceContainerService == containerInfo.Service
+func EventDeterminer(event interfaces.ReceivedEventInterface) {
 
 	var taskType interfaces.EventTaskType
 
@@ -41,14 +25,12 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 		taskType = interfaces.TASK
 	}
 
-	if !eventIsOurs {
-		return
-	}
-
 	switch taskType {
 	case interfaces.TASK:
+		/* ---> */
 		recordAndAllocateTask(event)
 	case interfaces.RESPONSE:
+		/* ---> */
 		modifyDatabaseAndSendBackResponse(event)
 	}
 
@@ -56,9 +38,11 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 
 func recordAndAllocateTask(task interfaces.ReceivedEventInterface) {
 
+	/* ---> */
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
 
 	if len(initRecordInfo.ContainerID) > 0 && initRecordInfo.Existing {
+		/* ---> */
 		responseInfo := getParsedResponseInfo(task, *initRecordInfo)
 		sendEventToContainer(*responseInfo)
 		return
@@ -68,6 +52,7 @@ func recordAndAllocateTask(task interfaces.ReceivedEventInterface) {
 }
 
 func modifyDatabaseAndSendBackResponse(response interfaces.ReceivedEventInterface) {
+	/* ---> */
 	responseInfo, err := databaseops.CompleteExistingTaskRecordInDB(response)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "modifyDatabaseAndSendBackResponse", err.Error())

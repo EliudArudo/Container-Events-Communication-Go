@@ -196,7 +196,6 @@ func getTargetService(key string) (string, error) {
 }
 
 func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInterface, requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
-
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
 	strigifiedTask := fmt.Sprintf("%v", funcTask.Task)
@@ -239,6 +238,7 @@ func recordNewInitialisedTaskWithRequestID(funcTask interfaces.ReceivedEventInte
 func recordNewTaskAndRequest(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
 	requestBodyID := saveNewRequestAndGetID(task.RequestBody)
 
+	/* ---> */
 	initialisedInfo := recordNewInitialisedTaskWithRequestID(task, requestBodyID)
 
 	initialisedInfo.RequestBody = task.RequestBody
@@ -304,6 +304,7 @@ func completeRecordInDB(funcResponse interfaces.ReceivedEventInterface, received
 
 // RecordNewTaskInDB checks if there's an existing task and if not, records a new task and request
 func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) *interfaces.InitialisedRecordInfoInterface {
+	/* ---> */
 	existingTask := getExistingTask(task)
 
 	if len(existingTask.FromRequestID) > 0 {
@@ -313,6 +314,7 @@ func RecordNewTaskInDB(task interfaces.ReceivedEventInterface) *interfaces.Initi
 		return parsedTask
 	}
 
+	/* ---> */
 	initRecordInfo := recordNewTaskAndRequest(task)
 
 	return initRecordInfo
@@ -325,8 +327,6 @@ func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterfa
 	preexistingResponse := interfaces.ResponseModelInterface{}
 
 	collection := getDatabaseCollection("responses")
-
-	// filter := bson.D{{"response", funcResponse.ResponseBody}}
 	filter := bson.M{
 		"response": bson.M{
 			"$eq": funcResponse.ResponseBody,
@@ -340,7 +340,9 @@ func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterfa
 
 	if len(preexistingResponse.Response) == 0 {
 		toReceivedTime := time.Now()
+		/* ---> */
 		toResponseBodyID := saveNewResponseAndGetID(funcResponse)
+		/* ---> */
 		completeRecordInDB(funcResponse, toReceivedTime, toResponseBodyID)
 	}
 
@@ -364,6 +366,7 @@ func CompleteExistingTaskRecordInDB(funcResponse interfaces.ReceivedEventInterfa
 		logs.StatusFileMessageLogging("FAILURE", filename, "CompleteExistingTaskRecordInDB", err.Error())
 	}
 
+	/* ---> funcResponse and task */
 	response := getParsedResponse(funcResponse, task)
 	return response, nil
 }
