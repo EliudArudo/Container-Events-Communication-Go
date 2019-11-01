@@ -133,13 +133,13 @@ func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces
 
 }
 
-func waitForResult(requestID string, expiresAt int64) interfaces.ReceivedEventInterface {
+func waitForResult(requestID string, expiresAt int64) *(interfaces.ReceivedEventInterface) {
 	response := util.GetResponseFromBuffer(requestID)
 
 	for {
 		timeNow := int64(time.Now().Unix())
 
-		if timeNow >= expiresAt || len(response.ContainerID) > 0 {
+		if timeNow >= expiresAt || len((*response).ContainerID) > 0 {
 			break
 		}
 		response = util.GetResponseFromBuffer(requestID)
@@ -176,13 +176,19 @@ func TaskController(decodedRequestBody map[string]interface{}, containerInfo int
 
 	sendTaskToEventsService(task)
 
-	expiresAt := int64(time.Now().Add(5 * time.Second).Unix())
-	response := waitForResult(task.RequestID, expiresAt)
+	channel := make(chan *(interfaces.ReceivedEventInterface))
+
+	go func(task *(interfaces.TaskStruct)) {
+		expiresAt := int64(time.Now().Add(5 * time.Second).Unix())
+		channel <- waitForResult((*task).RequestID, expiresAt)
+	}(&task)
+
+	response := <-channel
 
 	result := interfaces.ResultStruct{"FAIL", "0"}
 
-	if len(response.ResponseBody) > 0 {
-		result = interfaces.ResultStruct{"OK", response.ResponseBody}
+	if len((*response).ResponseBody) > 0 {
+		result = interfaces.ResultStruct{"OK", (*response).ResponseBody}
 	}
 
 	return result, nil

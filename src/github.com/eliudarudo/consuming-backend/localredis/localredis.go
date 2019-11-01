@@ -1,10 +1,12 @@
 package localredis
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/eliudarudo/consuming-backend/dockerapi"
 	"github.com/eliudarudo/consuming-backend/env"
+	"github.com/eliudarudo/consuming-backend/interfaces"
 	"github.com/eliudarudo/consuming-backend/logic"
 	"github.com/eliudarudo/consuming-backend/logs"
 	"github.com/go-redis/redis"
@@ -29,16 +31,51 @@ func SetUpRedisPubSubListener() {
 	}
 	logs.StatusFileMessageLogging("SUCCESS", redisFilename, "initialiseRedis", "Redis successfully set up")
 
+	myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
+	event := interfaces.ReceivedEventInterface{}
+
 	pubsub := redisClient.Subscribe(env.ConsumingService)
 	for {
 		message, err := pubsub.ReceiveMessage()
-		go func() {
-			if err != nil {
-				logs.StatusFileMessageLogging("FAILURE", redisFilename, "initialiseRedis", err.Error())
-			}
+		if err != nil {
+			logs.StatusFileMessageLogging("FAILURE", redisFilename, "initialiseRedis", err.Error())
+		}
 
-			myContainerInfo := dockerapi.GetMyOfflineContainerInfo()
-			logic.EventDeterminer(message.Payload, myContainerInfo)
+		event = *(parseAndReturnOurEvent(message.Payload, &myContainerInfo))
+
+		if len(event.Service) == 0 {
+			continue
+		}
+
+		go func() {
+			logic.EventDeterminer(&event)
 		}()
 	}
+}
+
+func parseAndReturnOurEvent(sentEvent string, containerInfo *(interfaces.ContainerInfoStruct)) *interfaces.ReceivedEventInterface {
+	var debug1 string
+	var event interfaces.ReceivedEventInterface
+
+	json.Unmarshal([]byte(sentEvent), &event)
+
+	// If event is still unmarshalled
+	if len(event.ContainerID) == 0 {
+		json.Unmarshal([]byte(sentEvent), &debug1)
+
+		if err := json.Unmarshal([]byte(debug1), &event); err != nil {
+			logs.StatusFileMessageLogging("FAILURE", redisFilename, "EventDeterminer", err.Error())
+		}
+	}
+	// else event is already marshalled
+
+	eventIsOurs := event.ContainerID == containerInfo.ID && event.Service == containerInfo.Service
+	// To break this use the code below
+	// eventIsOurs := event.ServiceContainerID == (*containerInfo).ID && event.ServiceContainerService == (*containerInfo).Service
+
+	if eventIsOurs {
+		return &event
+	}
+
+	return &interfaces.ReceivedEventInterface{}
 }

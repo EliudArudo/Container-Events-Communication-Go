@@ -10,9 +10,9 @@ var responseBuffer []string
 var responses []interfaces.ReceivedEventInterface
 
 // PushResponseToBuffers pushes response object and ID to responseBuffer and responses array respectively
-func PushResponseToBuffers(response interfaces.ReceivedEventInterface) {
-	responseBuffer = append(responseBuffer, response.RequestID)
-	responses = append(responses, response)
+func PushResponseToBuffers(response *(interfaces.ReceivedEventInterface)) {
+	responseBuffer = append(responseBuffer, (*response).RequestID)
+	responses = append(responses, *response)
 
 }
 
@@ -38,7 +38,7 @@ func clearResponseFromBuffers(requestID string) {
 }
 
 // GetResponseFromBuffer checks and retrieves the response when it's delivered from redis pubsub
-func GetResponseFromBuffer(requestID string) interfaces.ReceivedEventInterface {
+func GetResponseFromBuffer(requestID string) *(interfaces.ReceivedEventInterface) {
 	var responseArrived bool
 	var response interfaces.ReceivedEventInterface
 	for _, ID := range responseBuffer {
@@ -53,5 +53,5 @@ func GetResponseFromBuffer(requestID string) interfaces.ReceivedEventInterface {
 		}
 	}
 
-	return response
+	return &response
 }

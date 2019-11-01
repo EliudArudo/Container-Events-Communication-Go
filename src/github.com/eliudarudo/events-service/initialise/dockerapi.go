@@ -16,7 +16,7 @@ func printMyContainerInfo() {
 		return
 	}
 
-	containerInfo := fmt.Sprintf("Docker is working, my container info is : \n %+v", myContainerInfo)
+	containerInfo := fmt.Sprintf("Docker is working, my container info is : \n %+v", *myContainerInfo)
 
 	logs.StatusFileMessageLogging("SUCCESS", filename, "printMyContainerInfo", containerInfo)
 }

@@ -220,6 +220,9 @@ func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventIn
 		ToContainerService:      selectedContainer.Service,
 		ServiceContainerID:      myContainerInfo.ID,
 		ServiceContainerService: myContainerInfo.Service,
+		ToReceivedTime:          time.Now(),
+		ToResponseBodyID:        "Go Event Service: Nothing received yet",
+		FromSentTime:            time.Now(),
 	}
 
 	collection := getDatabaseCollection("tasks")
@@ -325,8 +328,6 @@ func CompleteExistingTaskRecordInDB(funcResponse *(interfaces.ReceivedEventInter
 
 	channel1 := make(chan bool)
 	channel2 := make(chan *(interfaces.TaskModelInterface))
-
-	fmt.Println("Starting tasks")
 
 	go func(funcResponse *(interfaces.ReceivedEventInterface)) {
 		collection := getDatabaseCollection("responses")

@@ -15,34 +15,13 @@ var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event
 // has been received through redis
-func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStruct) {
-	var debug1 string
-	var event interfaces.ReceivedEventInterface
-
-	json.Unmarshal([]byte(sentEvent), &event)
-
-	// If event is still unmarshalled
-	if len(event.ContainerID) == 0 {
-		json.Unmarshal([]byte(sentEvent), &debug1)
-
-		if err := json.Unmarshal([]byte(debug1), &event); err != nil {
-			logs.StatusFileMessageLogging("FAILURE", filename, "EventDeterminer", err.Error())
-		}
-	}
-	// else event is already marshalled
-
-	eventIsOurs := event.ContainerID == containerInfo.ID && event.Service == containerInfo.Service
-
+func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 	var taskType interfaces.EventTaskType
 
-	if len(event.ResponseBody) > 0 {
+	if len((*event).ResponseBody) > 0 {
 		taskType = interfaces.RESPONSE
 	} else {
 		taskType = interfaces.TASK
-	}
-
-	if !eventIsOurs {
-		return
 	}
 
 	switch taskType {
@@ -57,12 +36,12 @@ func EventDeterminer(sentEvent string, containerInfo interfaces.ContainerInfoStr
 
 }
 
-func performTaskAndRespond(task interfaces.ReceivedEventInterface) {
+func performTaskAndRespond(task *(interfaces.ReceivedEventInterface)) {
 	results := performLogic(task)
 	sendTaskToEventsService(task, results)
 }
 
-func sendTaskToEventsService(task interfaces.ReceivedEventInterface, results string) {
+func sendTaskToEventsService(task *(interfaces.ReceivedEventInterface), results *string) {
 	redisURI := fmt.Sprintf("%v:%v", env.RedisKeys.Host, env.RedisKeys.Port)
 
 	publisher := redis.NewClient(&redis.Options{
@@ -73,14 +52,14 @@ func sendTaskToEventsService(task interfaces.ReceivedEventInterface, results str
 	defer publisher.Close()
 
 	exportedTask := interfaces.ReceivedEventInterface{
-		Task:                    task.Task,
-		Subtask:                 task.Subtask,
-		ContainerID:             task.ContainerID,
-		Service:                 task.Service,
-		RecordID:                task.RecordID,
-		ServiceContainerID:      task.ServiceContainerID,
-		ServiceContainerService: task.ServiceContainerService,
-		ResponseBody:            results,
+		Task:                    (*task).Task,
+		Subtask:                 (*task).Subtask,
+		ContainerID:             (*task).ContainerID,
+		Service:                 (*task).Service,
+		RecordID:                (*task).RecordID,
+		ServiceContainerID:      (*task).ServiceContainerID,
+		ServiceContainerService: (*task).ServiceContainerService,
+		ResponseBody:            *results,
 	}
 
 	jsonifiedTask, _ := json.Marshal(exportedTask)
@@ -101,10 +80,10 @@ func getObjectKeys(_map map[string]interface{}) []string {
 	return keys
 }
 
-func performLogic(task interfaces.ReceivedEventInterface) string {
+func performLogic(task *(interfaces.ReceivedEventInterface)) *string {
 
 	var decodedRequestBody map[string]interface{}
-	err := json.Unmarshal([]byte(task.RequestBody), &decodedRequestBody)
+	err := json.Unmarshal([]byte((*task).RequestBody), &decodedRequestBody)
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "performLogic", err.Error())
 	}
@@ -116,8 +95,8 @@ func performLogic(task interfaces.ReceivedEventInterface) string {
 
 	var result interface{}
 
-	if task.Task == interfaces.STRING &&
-		task.Subtask == interfaces.ADD {
+	if (*task).Task == interfaces.STRING &&
+		(*task).Subtask == interfaces.ADD {
 		str1, _ := item1.(string)
 		str2, _ := item2.(string)
 
@@ -126,20 +105,20 @@ func performLogic(task interfaces.ReceivedEventInterface) string {
 		num1, _ := item1.(float64)
 		num2, _ := item2.(float64)
 
-		if task.Subtask == interfaces.ADD {
+		if (*task).Subtask == interfaces.ADD {
 			result = devAddNumber(num1, num2)
-		} else if task.Subtask == interfaces.SUBTRACT {
+		} else if (*task).Subtask == interfaces.SUBTRACT {
 			result = devSubtractNumber(num1, num2)
-		} else if task.Subtask == interfaces.MULTIPLY {
+		} else if (*task).Subtask == interfaces.MULTIPLY {
 			result = devMultiplyNumber(num1, num2)
-		} else if task.Subtask == interfaces.DIVIDE {
+		} else if (*task).Subtask == interfaces.DIVIDE {
 			result = devDivideNumber(num1, num2)
 		}
 	}
 
 	stringifiedResult := fmt.Sprintf("%v", result)
 
-	return stringifiedResult
+	return &stringifiedResult
 }
 
 func devAddStrings(string1 string, string2 string) string {
