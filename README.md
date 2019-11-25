@@ -1,7 +1,9 @@
 ## An Event Based Microservice Architecture
 
-<div style="height:80px; 
+<div style="height:80px;
+            width: 120px; 
             display: inline-flex; 
+            flex-direction: row;
             justify-content: center; 
             align-items: center;">
 <img style="height: 50px;
@@ -439,8 +441,8 @@ Please note the text file's path. `test.txt` is used below as an example.
 
 *Tabulated results*
 
-|  req         |  req/s |  response time (avg) |
-|--------------|:------:|:--------------------:|
+|    req       |  req/s |  response time (avg) |
+|:-------------|:------:|:--------------------:|
 |   100        |   1    |        81ms          | 
 |   1000(max)  |  10    |        2.2s          | 
 
