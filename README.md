@@ -1,13 +1,20 @@
 ## An Event Based Microservice Architecture
-<a href="/" target="_blank">
-<img class="language-logo" src="images/go.png"/>
-</a>
 
-<a href="/">
-<img class="language-logo" src="images/docker.png"/>
-</a>
+<div style="height:80px; 
+            display: inline-flex; 
+            justify-content: center; 
+            align-items: center;">
+<img style="height: 50px;
+            width: auto;
+            margin-right: 20px;
+            " 
+     src="images/go.png"/>
 
-<!-- NOTE - ON PUSHING TO GITHUB, CHANGE ALL IMAGE LINKS TO GITHUB -->
+<img style="height: 50px;
+            width: auto;" 
+     src="images/docker.png"/>
+</div> 
+
 
 ### Table of Contents
 * [Project Overview](#project-overview)
@@ -410,7 +417,7 @@ A/B command used is:
 *Tabulated results*
 
 | reqs | req/s  | res time(avg) |
-|------|:-----: | :------------:|
+|:-----|:-----: | :------------:|
 | 100  |   1    |      5ms      | 
 | 1000 |  10    |      26ms     |
 | 5000 |  500   |      1.1s     |
@@ -611,18 +618,3 @@ Your help in these areas will be much appreciated
 
 You can reach me through [eliudarudo@gmail.com](mailto:eliudarudo@gmail.com) in case of any inquiries. Thank you 😊.
 
-
-<style>
-/* Restraining language logo size */
-.language-logo {
-    height: 50px;
-    width: auto;
-}
-
-/* Remove outline on focus on clicking image */
-a:active, a:focus {
-  outline: 0;
-  border: none;
-  -moz-outline-style: none;
-}
-</style>
