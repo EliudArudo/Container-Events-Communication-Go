@@ -11,7 +11,7 @@ services:
 # consuming services have to have keywords based on the
 # 'task-maps.json' file
   consuming-frontend:
-    image: eliudarudo/go-events-communication-consuming-frontend:latest
+    image: eliudarudo/go-events-communication-consuming-frontend:dev
     ports:
       - "4000:4000"
     volumes: 
@@ -27,7 +27,7 @@ services:
       - EVENT_SERVICE_EVENT=Event_Service
       - CONSUMING_SERVICE_EVENT=Consuming_Service
   event-service:
-    image: eliudarudo/go-events-communication-events-service:latest
+    image: eliudarudo/go-events-communication-events-service:dev
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -43,7 +43,7 @@ services:
       - EVENT_SERVICE_EVENT=Event_Service
       - CONSUMING_SERVICE_EVENT=Consuming_Service  
   consuming-backend:
-    image: eliudarudo/go-events-communication-consuming-backend:latest
+    image: eliudarudo/go-events-communication-consuming-backend:dev
     volumes: 
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
