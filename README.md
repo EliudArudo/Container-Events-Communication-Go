@@ -455,7 +455,17 @@ Please note the text file's path. `test.txt` is used below as an example.
 ### Deployment
 ---
 _**Build your own docker images**_
-The first step is to clone this repo into your local directory. The **utility/** folder contains two files namely:
+The first step is to clone this repo into your local directory. Please make sure you have Go SDK tools installed in your system. We'll need to generate two files for each or our services namely: `go.mod` and `go.sum`. These are crucial in building our Docker images. Change directory into each of the service directories, e.g `src/github.com/eliudarudo/consuming-frontend` and run:
+```
+go mod init github.com/eliudarudo/consuming-frontend && go build
+
+```
+You will get some errors about some implementations missing for the  Docker package. We solve that by getting a previous version of it by running:
+```
+go get github.com/docker/docker@c9553897f3836a3c8ce448060d145528d4f2e9f2
+```
+
+The **utility/** folder contains two files namely:
 - __deploy-images-locally.sh__ : builds docker images locally under 'dev' version. Here's a snippet:
 ```
 docker build -t eliudarudo/go-events-communication-consuming-frontend:dev -f ../src/github.com/eliudarudo/consuming-frontend/Dockerfile ../src/github.com/eliudarudo/consuming-frontend
