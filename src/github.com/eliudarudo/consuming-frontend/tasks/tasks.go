@@ -19,6 +19,8 @@ import (
 
 var filename = "tasks/tasks.go"
 
+var waitingTimeForResponseMS = 50
+
 func determineTask(requestBody map[string]interface{}) interfaces.TaskType {
 	var task interfaces.TaskType
 	var isString bool
@@ -137,6 +139,9 @@ func waitForResult(requestID string, expiresAt int64) *(interfaces.ReceivedEvent
 	response := util.GetResponseFromBuffer(requestID)
 
 	for {
+		// Our speed breaker
+		time.Sleep(time.Millisecond * time.Duration(waitingTimeForResponseMS))
+
 		timeNow := int64(time.Now().Unix())
 
 		if timeNow >= expiresAt || len((*response).ContainerID) > 0 {

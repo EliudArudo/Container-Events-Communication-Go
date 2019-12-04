@@ -433,23 +433,27 @@ Please note the text file's path. `test.txt` is used below as an example.
 
 |    req       |  req/s |  response time (avg) |
 |:-------------|:------:|:--------------------:|
-|   100        |   1    |        81ms          | 
-|   1000(max)  |  10    |        2.2s          | 
+|   100        |   1    |        128ms         | 
+|   1000       |  10    |        1s            | 
+|   1000       |  100   |        3.7s          | 
+|  5000(max)   |  100   |        3.7s          | 
 
 
 `Integration tests`
 
 *Tabulated results*
 
+Testing 2500 reqs, at 100 reqs/s
+
 |Frontend/Events/Backend|     response time (avg)       |
 |-----------------------|:-----------------------------:|
-| Go/Go/Go              |  1.1s (500 reqs, 5 reqs/s)    |
-| Go/Go/*NodeJS*        |  2.5s (500 reqs, 10 reqs/s)   |
-| Go/*NodeJS*/Go        |  2s (500r reqs 10 reqs/s)     |
-| *NodeJS*/Go/Go        |  122ms (1000 reqs, 1 reqs/s)  |
-| Go/*NodeJS*/*NodeJS*  |  2s (500 reqs, 10 reqs/s)     |
-| *NodeJS*/Go/*NodeJS*  |  2.4s (500 reqs, 10 reqs/s)   |
-| *NodeJS*/*NodeJS*/Go  |  3.2s (2500 reqs, 100 reqs/s) |
+| Go/Go/Go              |           1.1s                |
+| Go/Go/*NodeJS*        |           2.5s                |
+| Go/*NodeJS*/Go        |           2s                  |
+| *NodeJS*/Go/Go        |           122ms               |
+| Go/*NodeJS*/*NodeJS*  |           2s                  |
+| *NodeJS*/Go/*NodeJS*  |           2.4s                |
+| *NodeJS*/*NodeJS*/Go  |           3.2s                |
 
 
 ### Deployment
