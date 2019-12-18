@@ -15,6 +15,10 @@ var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event
 // has been received through redis
+/*
+   Test
+    - performTaskAndRespond called if it's a TASK
+*/
 func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 	var taskType interfaces.EventTaskType
 
@@ -36,6 +40,11 @@ func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 
 }
 
+/*
+   Test
+	- performLogic with args
+	- sendTaskToEventsService called at least once
+*/
 func performTaskAndRespond(task *(interfaces.ReceivedEventInterface)) {
 	results := performLogic(task)
 	sendTaskToEventsService(task, results)
@@ -71,6 +80,9 @@ func sendTaskToEventsService(task *(interfaces.ReceivedEventInterface), results 
 	}
 }
 
+/*
+   Test
+*/
 func getObjectKeys(_map map[string]interface{}) []string {
 	keys := make([]string, 0, len(_map))
 	for k := range _map {
@@ -80,6 +92,9 @@ func getObjectKeys(_map map[string]interface{}) []string {
 	return keys
 }
 
+/*
+   Test
+*/
 func performLogic(task *(interfaces.ReceivedEventInterface)) *string {
 
 	var decodedRequestBody map[string]interface{}
@@ -121,26 +136,41 @@ func performLogic(task *(interfaces.ReceivedEventInterface)) *string {
 	return &stringifiedResult
 }
 
+/*
+   Test
+*/
 func devAddStrings(string1 string, string2 string) string {
 	concatString := string1 + string2
 	return concatString
 }
 
+/*
+   Test
+*/
 func devAddNumber(number1 float64, number2 float64) float64 {
 	addedNumber := number1 + number2
 	return addedNumber
 }
 
+/*
+   Test
+*/
 func devSubtractNumber(number1 float64, number2 float64) float64 {
 	subtractedNumber := number1 - number2
 	return subtractedNumber
 }
 
+/*
+   Test
+*/
 func devMultiplyNumber(number1 float64, number2 float64) float64 {
 	multipliedNumber := number1 * number2
 	return multipliedNumber
 }
 
+/*
+   Test
+*/
 func devDivideNumber(number1 float64, number2 float64) float64 {
 	dividedNumber := number1 / number2
 	return dividedNumber

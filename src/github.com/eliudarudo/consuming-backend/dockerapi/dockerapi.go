@@ -15,6 +15,10 @@ var myContainerInfo interfaces.ContainerInfoStruct
 
 // GetMyContainerInfo gets all docker containers and stores this container's info in the global
 // myContainerInfo variable
+/*
+  Test
+   - initialise is called at least once
+*/
 func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		initialise()
@@ -40,6 +44,10 @@ func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	return myContainerInfo
 }
 
+/*
+  Test
+   - getMyContainerInfoFromContainerArray called at least once
+*/
 func initialise() {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -61,6 +69,9 @@ func initialise() {
 	myContainerInfo = containerInfo
 }
 
+/*
+  Test
+*/
 func getMyContainerInfoFromContainerArray(containerArray []types.Container) interfaces.ContainerInfoStruct {
 	containerInfo := interfaces.ContainerInfoStruct{}
 

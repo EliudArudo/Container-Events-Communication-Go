@@ -15,6 +15,11 @@ import (
 var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event has been received through redis and channels it to respective handler functions
+/*
+   Test
+	- recordAndAllocateTask called if it's a TASK
+	- modifyDatabaseAndSendBackResponse called if it's a RESPONSE
+*/
 func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 
 	var taskType interfaces.EventTaskType
@@ -34,6 +39,9 @@ func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 
 }
 
+/*
+   Test
+*/
 func recordAndAllocateTask(task *(interfaces.ReceivedEventInterface)) {
 
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
@@ -47,6 +55,11 @@ func recordAndAllocateTask(task *(interfaces.ReceivedEventInterface)) {
 	allocateTaskToConsumingContainer(*initRecordInfo)
 }
 
+/*
+   Test
+   - databaseops.CompleteExistingTaskRecordInDB(response)
+   - sendEventToContainer called at least once
+*/
 func modifyDatabaseAndSendBackResponse(response *(interfaces.ReceivedEventInterface)) {
 	responseInfo, err := databaseops.CompleteExistingTaskRecordInDB(response)
 	if err != nil {
@@ -56,6 +69,9 @@ func modifyDatabaseAndSendBackResponse(response *(interfaces.ReceivedEventInterf
 	sendEventToContainer(responseInfo)
 }
 
+/*
+   Test
+*/
 func getParsedResponseInfo(task *(interfaces.ReceivedEventInterface), existingRecordInfo *interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	parsedResponseInfo := interfaces.EventInterface{
 		RequestID:    (*task).RequestID,
@@ -67,6 +83,10 @@ func getParsedResponseInfo(task *(interfaces.ReceivedEventInterface), existingRe
 	return &parsedResponseInfo
 }
 
+/*
+   Test
+    - sendEventToContainer called at least once
+*/
 func allocateTaskToConsumingContainer(initRecordInfo interfaces.InitialisedRecordInfoInterface) {
 	eventToSend := parseEventFromRecordInfo(initRecordInfo)
 
@@ -106,6 +126,9 @@ func sendEventToContainer(eventInfo *(interfaces.EventInterface)) {
 	}
 }
 
+/*
+   Test
+*/
 func parseEventFromRecordInfo(initRecordInfo interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	event := interfaces.EventInterface{
 		ContainerID:             initRecordInfo.ChosenContainerID,

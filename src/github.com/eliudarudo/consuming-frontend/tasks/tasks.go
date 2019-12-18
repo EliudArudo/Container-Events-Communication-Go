@@ -21,6 +21,9 @@ var filename = "tasks/tasks.go"
 
 var waitingTimeForResponseMS = 50
 
+/*
+   Test
+*/
 func determineTask(requestBody map[string]interface{}) interfaces.TaskType {
 	var task interfaces.TaskType
 	var isString bool
@@ -55,6 +58,9 @@ func determineTask(requestBody map[string]interface{}) interfaces.TaskType {
 	return task
 }
 
+/*
+   Test
+*/
 func determineSubtask(task interfaces.TaskType, requestBody map[string]interface{}) interfaces.SubTaskType {
 	var subtask interfaces.SubTaskType
 
@@ -88,6 +94,9 @@ func determineSubtask(task interfaces.TaskType, requestBody map[string]interface
 	return subtask
 }
 
+/*
+   Test
+*/
 func getTargetService(key string) (string, error) {
 	jsonFile, err := os.Open("tasks/task-maps.json")
 	if err != nil {
@@ -103,6 +112,9 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
+/*
+   Test
+*/
 func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.TaskStruct, error) {
 	task := determineTask(requestBody)
 	subtask := determineSubtask(task, requestBody)
@@ -135,6 +147,9 @@ func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces
 
 }
 
+/*
+   Test
+*/
 func waitForResult(requestID string, expiresAt int64) *(interfaces.ReceivedEventInterface) {
 	response := util.GetResponseFromBuffer(requestID)
 
@@ -173,6 +188,9 @@ func sendTaskToEventsService(task interfaces.TaskStruct) {
 }
 
 // TaskController takes request body from http requests, sends it through redis pubsub and waits for response on the same channel
+/*
+   Test
+*/
 func TaskController(decodedRequestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.ResultStruct, error) {
 	task, err := taskDeterminer(decodedRequestBody, containerInfo)
 	if err != nil {
