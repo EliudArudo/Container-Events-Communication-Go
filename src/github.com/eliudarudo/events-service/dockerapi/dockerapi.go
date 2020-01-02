@@ -43,9 +43,6 @@ func GetMyOfflineContainerInfo() *interfaces.ContainerInfoStruct {
 	return &myContainerInfo
 }
 
-/*
-  Test
-*/
 func getParsedContainers(containerArray []types.Container) ([]interfaces.ContainerInfoStruct, error) {
 	if len(containerArray) == 0 {
 		return nil, errors.New("No containers to parse")
@@ -64,9 +61,6 @@ func getParsedContainers(containerArray []types.Container) ([]interfaces.Contain
 	return parsedContainers, nil
 }
 
-/*
-  Test
-*/
 func getFreshContainers() []interfaces.ContainerInfoStruct {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -87,10 +81,6 @@ func getFreshContainers() []interfaces.ContainerInfoStruct {
 	return parsedContainers
 }
 
-/*
-  Test
-    -  getMyContainerInfoFromContainerArray called at least once
-*/
 func initialise() {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -112,9 +102,6 @@ func initialise() {
 	myContainerInfo = *containerInfo
 }
 
-/*
-  Test
-*/
 func getMyContainerInfoFromContainerArray(containerArray []types.Container) *interfaces.ContainerInfoStruct {
 	containerInfo := interfaces.ContainerInfoStruct{}
 
@@ -142,9 +129,7 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) *int
 }
 
 // FetchConsumingContainer returns a randomly selected container from target service
-/*
-  Test
-*/
+
 func FetchConsumingContainer(containerServiceKeyword string) *interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 

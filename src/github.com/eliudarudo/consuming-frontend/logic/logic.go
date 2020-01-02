@@ -9,10 +9,6 @@ var filename = "logic/logic.go"
 
 // EventDeterminer determines which type of event
 // has been received through redis
-/*
-   Test
-    - util.PushResponseToBuffers called if it's a TASK
-*/
 func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 	var taskType interfaces.EventTaskType
 

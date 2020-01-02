@@ -9,10 +9,6 @@ import (
 
 var filename = "initialise/dockerapi.go"
 
-/*
-   Test
-     - GetMyContainerInfo called at least once
-*/
 func printMyContainerInfo() {
 	myContainerInfo := dockerapi.GetMyContainerInfo()
 	if len(myContainerInfo.ID) == 0 {

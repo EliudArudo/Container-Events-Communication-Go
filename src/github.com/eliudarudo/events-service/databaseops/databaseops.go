@@ -21,9 +21,7 @@ import (
 
 var filename = "databaseops/databaseops.go"
 
-/*
-   Test
-*/
+
 func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 	mongoClient := mongodb.GetClient()
 
@@ -32,9 +30,7 @@ func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 	return collection
 }
 
-/*
-   Test
-*/
+
 func getExistingRequestDocumentID(request string) *string {
 	collection := getDatabaseCollection("requests")
 
@@ -59,9 +55,7 @@ func getExistingRequestDocumentID(request string) *string {
 	return &finalID
 }
 
-/*
-   Test
-*/
+
 func getExistingTask(task *(interfaces.ReceivedEventInterface)) *interfaces.TaskModelInterface {
 	existingTask := interfaces.TaskModelInterface{}
 
@@ -94,9 +88,7 @@ func getExistingTask(task *(interfaces.ReceivedEventInterface)) *interfaces.Task
 	return &existingTask
 }
 
-/*
-   Test
-*/
+
 func getExistingParsedTask(mongoDBTask *(interfaces.TaskModelInterface)) *interfaces.InitialisedRecordInfoInterface {
 	toResponseID := (*mongoDBTask).ToResponseBodyID
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
@@ -138,9 +130,7 @@ func getExistingParsedTask(mongoDBTask *(interfaces.TaskModelInterface)) *interf
 	return parsedTask
 }
 
-/*
-   Test
-*/
+
 func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContainerInfo interfaces.ContainerInfoStruct) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := interfaces.InitialisedRecordInfoInterface{
 		ContainerID:             mongoDBTask.FromContainerID,
@@ -174,9 +164,7 @@ func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContain
 	return &parsedTask
 }
 
-/*
-   Test
-*/
+
 func saveNewRequestAndGetID(requestBody string) string {
 
 	collection := getDatabaseCollection("requests")
@@ -198,9 +186,7 @@ func saveNewRequestAndGetID(requestBody string) string {
 
 }
 
-/*
-   Test
-*/
+
 func getTargetService(key string) (string, error) {
 	jsonFile, err := os.Open("tasks/task-maps.json")
 	if err != nil {
@@ -216,9 +202,7 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
-/*
-   Test
-*/
+
 func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventInterface), requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
 
@@ -262,9 +246,7 @@ func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventIn
 	return parsedTask
 }
 
-/*
-   Test
-*/
+
 func recordNewTaskAndRequest(task *(interfaces.ReceivedEventInterface)) *interfaces.InitialisedRecordInfoInterface {
 	requestBodyID := saveNewRequestAndGetID((*task).RequestBody)
 
@@ -275,9 +257,7 @@ func recordNewTaskAndRequest(task *(interfaces.ReceivedEventInterface)) *interfa
 	return initialisedInfo
 }
 
-/*
-   Test
-*/
+
 func getParsedResponse(funcResponse *(interfaces.ReceivedEventInterface), oldTask *(interfaces.TaskModelInterface)) *interfaces.EventInterface {
 	response := interfaces.EventInterface{
 		RequestID:    (*oldTask).FromRequestID,
@@ -289,9 +269,7 @@ func getParsedResponse(funcResponse *(interfaces.ReceivedEventInterface), oldTas
 	return &response
 }
 
-/*
-   Test
-*/
+
 func saveNewResponseAndGetID(funcResponse *(interfaces.ReceivedEventInterface)) string {
 
 	collection := getDatabaseCollection("responses")
@@ -338,9 +316,6 @@ func completeRecordInDB(funcResponse *(interfaces.ReceivedEventInterface), recei
 }
 
 // RecordNewTaskInDB checks if there's an existing task and if not, records a new task and request
-/*
-  Test
-*/
 func RecordNewTaskInDB(task *(interfaces.ReceivedEventInterface)) *interfaces.InitialisedRecordInfoInterface {
 	existingTask := getExistingTask(task)
 

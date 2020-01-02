@@ -54,9 +54,7 @@ func SetUpRedisPubSubListener() {
 
 }
 
-/*
-   Test
-*/
+
 func parseAndReturnOurEvent(sentEvent string, containerInfo *(interfaces.ContainerInfoStruct)) *interfaces.ReceivedEventInterface {
 	var debug1 string
 	var event interfaces.ReceivedEventInterface

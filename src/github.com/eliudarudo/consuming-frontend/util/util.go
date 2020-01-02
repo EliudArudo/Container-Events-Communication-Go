@@ -16,9 +16,6 @@ func PushResponseToBuffers(response *(interfaces.ReceivedEventInterface)) {
 
 }
 
-/*
-   Test
-*/
 func clearResponseFromBuffers(requestID string) {
 	newResponseBuffer := make([]string, 0)
 	newResponsesArray := make([]interfaces.ReceivedEventInterface, 0)
@@ -41,9 +38,6 @@ func clearResponseFromBuffers(requestID string) {
 }
 
 // GetResponseFromBuffer checks and retrieves the response when it's delivered from redis pubsub
-/*
-   Test
-*/
 func GetResponseFromBuffer(requestID string) *(interfaces.ReceivedEventInterface) {
 	var responseArrived bool
 	var response interfaces.ReceivedEventInterface

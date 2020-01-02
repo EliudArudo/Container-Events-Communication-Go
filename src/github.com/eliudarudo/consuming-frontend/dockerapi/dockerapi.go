@@ -18,10 +18,6 @@ var myContainerInfo interfaces.ContainerInfoStruct
 
 // GetMyContainerInfo gets all docker containers and stores this container's info in the global
 // myContainerInfo variable
-/*
-  Test
-   - initialise is called at least once
-*/
 func GetMyContainerInfo() interfaces.ContainerInfoStruct {
 	for {
 		initialise()
@@ -47,9 +43,6 @@ func GetMyOfflineContainerInfo() interfaces.ContainerInfoStruct {
 	return myContainerInfo
 }
 
-/*
-  Test
-*/
 func getParsedContainers(containerArray []types.Container) ([]interfaces.ContainerInfoStruct, error) {
 	if len(containerArray) == 0 {
 		return nil, errors.New("No containers to parse")
@@ -68,10 +61,6 @@ func getParsedContainers(containerArray []types.Container) ([]interfaces.Contain
 	return parsedContainers, nil
 }
 
-/*
-  Test
-    - getParsedContainers called at least once
-*/
 func getFreshContainers() []interfaces.ContainerInfoStruct {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -92,10 +81,6 @@ func getFreshContainers() []interfaces.ContainerInfoStruct {
 	return parsedContainers
 }
 
-/*
-  Test
-   - getMyContainerInfoFromContainerArray called at least once
-*/
 func initialise() {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -117,9 +102,6 @@ func initialise() {
 	myContainerInfo = containerInfo
 }
 
-/*
-  Test
-*/
 func getMyContainerInfoFromContainerArray(containerArray []types.Container) interfaces.ContainerInfoStruct {
 	containerInfo := interfaces.ContainerInfoStruct{}
 
@@ -149,11 +131,6 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) inte
 // TODO - make sure we can select event service here
 
 // FetchEventContainer returns a randomly selected container from target service
-/*
-  Test
-   - getFreshContainers called at least once
-   - test full functionality
-*/
 func FetchEventContainer(serviceKeyword string) interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 
