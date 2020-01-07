@@ -129,7 +129,6 @@ func getMyContainerInfoFromContainerArray(containerArray []types.Container) *int
 }
 
 // FetchConsumingContainer returns a randomly selected container from target service
-
 func FetchConsumingContainer(containerServiceKeyword string) *interfaces.ContainerInfoStruct {
 	freshContainers := getFreshContainers()
 
