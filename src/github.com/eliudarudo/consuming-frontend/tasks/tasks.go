@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
 	"github.com/eliudarudo/consuming-frontend/env"
 	"github.com/eliudarudo/consuming-frontend/interfaces"
 	"github.com/eliudarudo/consuming-frontend/logs"
@@ -89,7 +88,7 @@ func determineSubtask(task interfaces.TaskType, requestBody map[string]interface
 }
 
 func getTargetService(key string) (string, error) {
-	jsonFile, err := os.Open("tasks/task-maps.json")
+	jsonFile, err := os.Open("task-maps.json")
 	if err != nil {
 		return "", err
 	}
@@ -103,9 +102,12 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
-func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.TaskStruct, error) {
-	task := determineTask(requestBody)
-	subtask := determineSubtask(task, requestBody)
+func taskDeterminer(
+	dockerAPI interfaces.DockerAPIStruct,
+	task interfaces.TaskType,
+	subtask interfaces.SubTaskType,
+	marshalledRequestBody string,
+	containerInfo interfaces.ContainerInfoStruct) (interfaces.TaskStruct, error) {
 
 	requestID := uuid.New().String()
 
@@ -114,12 +116,7 @@ func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces
 	if err != nil {
 		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
 	}
-	chosenContainer := dockerapi.FetchEventContainer(targetService)
-
-	marshalledRequestBody, err := json.Marshal(requestBody)
-	if err != nil {
-		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
-	}
+	chosenContainer := dockerAPI.FetchEventContainer(targetService)
 
 	exportTask := interfaces.TaskStruct{
 		task,
@@ -127,7 +124,7 @@ func taskDeterminer(requestBody map[string]interface{}, containerInfo interfaces
 		containerInfo.ID,
 		containerInfo.Service,
 		requestID,
-		string(marshalledRequestBody),
+		marshalledRequestBody,
 		chosenContainer.ID,
 		chosenContainer.Service}
 
@@ -174,19 +171,29 @@ func sendTaskToEventsService(task interfaces.TaskStruct) {
 
 // TaskController takes request body from http requests, sends it through redis pubsub and waits for response on the same channel
 func TaskController(decodedRequestBody map[string]interface{}, containerInfo interfaces.ContainerInfoStruct) (interfaces.ResultStruct, error) {
-	task, err := taskDeterminer(decodedRequestBody, containerInfo)
+	task := determineTask(decodedRequestBody)
+	subtask := determineSubtask(task, decodedRequestBody)
+
+	marshalledRequestBody, err := json.Marshal(decodedRequestBody)
+	if err != nil {
+		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
+	}
+
+	localDockerAPIObject := interfaces.DockerAPIStruct{}
+
+	readyTask, err := taskDeterminer(localDockerAPIObject, task, subtask, string(marshalledRequestBody), containerInfo)
 	if err != nil {
 		return interfaces.ResultStruct{}, err
 	}
 
-	sendTaskToEventsService(task)
+	sendTaskToEventsService(readyTask)
 
 	channel := make(chan *(interfaces.ReceivedEventInterface))
 
 	go func(task *(interfaces.TaskStruct)) {
 		expiresAt := int64(time.Now().Add(5 * time.Second).Unix())
 		channel <- waitForResult((*task).RequestID, expiresAt)
-	}(&task)
+	}(&readyTask)
 
 	response := <-channel
 

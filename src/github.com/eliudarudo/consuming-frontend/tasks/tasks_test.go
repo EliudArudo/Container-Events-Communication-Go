@@ -158,3 +158,53 @@ func TestDetermineSubtask(t *testing.T) {
 		t.Errorf("\t\t%v Got : '%v' and '%v'", failIcon, stringifiedInvalidType, stringifiedInvalidSubType)
 	}
 }
+
+func TestGetTargetService(t *testing.T) {
+	numberTaskKey := fmt.Sprintf("%v", interfaces.NUMBER)
+	stringTaskKey := fmt.Sprintf("%v", interfaces.STRING)
+
+	expectedNumberTaskTargetService := "event"
+	expectedStringTaskTargetService := "event"
+
+	targetNumberService, err := getTargetService(numberTaskKey)
+	if err != nil {
+		t.Errorf("\t%v Failed to open 'task-maps.json' with error: %v", failIcon, err.Error())
+	}
+
+	targetStringService, err := getTargetService(stringTaskKey)
+	if err != nil {
+		t.Errorf("\t%v Failed to open 'task-maps.json' with error: %v", failIcon, err.Error())
+	}
+
+	invalidTargetService, err := getTargetService("")
+	if err != nil {
+		t.Errorf("\t%v Failed to open 'task-maps.json' with error: %v", failIcon, err.Error())
+	}
+
+	t.Logf("\tGiven Task being = %v", numberTaskKey)
+
+	t.Logf("\t\tTest: \tExpected target service = '%v'", expectedNumberTaskTargetService)
+	if targetNumberService == expectedNumberTaskTargetService {
+		t.Logf("\t\t%v Got : '%v'", succeedIcon, targetNumberService)
+	} else {
+		t.Errorf("\t\t%v Got : '%v'", failIcon, targetNumberService)
+	}
+
+	t.Logf("\tGiven Task being = %v", stringTaskKey)
+
+	t.Logf("\t\tTest: \tExpected target service = '%v'", expectedStringTaskTargetService)
+	if targetStringService == expectedStringTaskTargetService {
+		t.Logf("\t\t%v Got : '%v'", succeedIcon, targetStringService)
+	} else {
+		t.Errorf("\t\t%v Got : '%v'", failIcon, targetStringService)
+	}
+
+	t.Log("\tGiven no valid Task")
+
+	t.Log("\t\tTest: \tExpected target service = ''")
+	if invalidTargetService == "" {
+		t.Logf("\t\t%v Got : '%v'", succeedIcon, invalidTargetService)
+	} else {
+		t.Errorf("\t\t%v Got : '%v'", failIcon, invalidTargetService)
+	}
+}
