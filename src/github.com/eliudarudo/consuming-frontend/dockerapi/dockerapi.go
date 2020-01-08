@@ -14,6 +14,14 @@ import (
 	"github.com/eliudarudo/consuming-frontend/interfaces"
 )
 
+// Struct for a DockerAPI object
+type Struct struct{}
+
+// FetchEventContainer should return fetched event container
+func (dockerAPI *Struct) FetchEventContainer(targetService string) interfaces.ContainerInfoStruct {
+	return FetchEventContainer(targetService)
+}
+
 var myContainerInfo interfaces.ContainerInfoStruct
 
 // GetMyContainerInfo gets all docker containers and stores this container's info in the global

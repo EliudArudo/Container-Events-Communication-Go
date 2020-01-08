@@ -2,8 +2,6 @@ package interfaces
 
 import (
 	"encoding/json"
-
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
 )
 
 // ContainerInfoStruct maps a docker container ID and Service
@@ -96,12 +94,4 @@ type ReceivedEventInterface struct {
 type RedisEnvInterface struct {
 	Host string
 	Port int
-}
-
-// DockerAPIStruct for a DockerAPI object
-type DockerAPIStruct struct{}
-
-// FetchEventContainer should return fetched event container
-func (dockerAPI *DockerAPIStruct) FetchEventContainer(targetService string) ContainerInfoStruct {
-	return dockerapi.FetchEventContainer(targetService)
 }

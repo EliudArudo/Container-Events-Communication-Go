@@ -208,3 +208,5 @@ func TestGetTargetService(t *testing.T) {
 		t.Errorf("\t\t%v Got : '%v'", failIcon, invalidTargetService)
 	}
 }
+
+func taskDeterminer(t *testing.T) {}

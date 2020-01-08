@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/eliudarudo/consuming-frontend/dockerapi"
 	"github.com/eliudarudo/consuming-frontend/env"
 	"github.com/eliudarudo/consuming-frontend/interfaces"
 	"github.com/eliudarudo/consuming-frontend/logs"
@@ -102,8 +103,9 @@ func getTargetService(key string) (string, error) {
 	return result[key], nil
 }
 
+// Test this now
 func taskDeterminer(
-	dockerAPI interfaces.DockerAPIStruct,
+	dockerAPI dockerapi.Struct,
 	task interfaces.TaskType,
 	subtask interfaces.SubTaskType,
 	marshalledRequestBody string,
@@ -179,7 +181,7 @@ func TaskController(decodedRequestBody map[string]interface{}, containerInfo int
 		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
 	}
 
-	localDockerAPIObject := interfaces.DockerAPIStruct{}
+	localDockerAPIObject := dockerapi.Struct{}
 
 	readyTask, err := taskDeterminer(localDockerAPIObject, task, subtask, string(marshalledRequestBody), containerInfo)
 	if err != nil {
