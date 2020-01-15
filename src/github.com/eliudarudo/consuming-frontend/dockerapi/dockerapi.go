@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -15,10 +16,35 @@ import (
 )
 
 // Struct for a DockerAPI object
-type Struct struct{}
+type Struct struct {
+	methodsToCall map[string]bool
+}
+
+// ExpectToCall creates a mocking expectation
+func (dockerMock *Struct) ExpectToCall(methodName string) {
+	if dockerMock.methodsToCall == nil {
+		dockerMock.methodsToCall = make(map[string]bool)
+	}
+
+	dockerMock.methodsToCall[methodName] = false
+}
+
+// Verify checks which methods are called
+func (dockerMock *Struct) Verify(t *testing.T) {
+	for methodName, called := range dockerMock.methodsToCall {
+		if !called {
+			t.Errorf("Expected to call '%s', but it was not called", methodName)
+		}
+	}
+}
+
+// Restore clears all method calls
+func (dockerMock *Struct) Restore() {
+	dockerMock.methodsToCall = nil
+}
 
 // FetchEventContainer should return fetched event container
-func (dockerAPI *Struct) FetchEventContainer(targetService string) interfaces.ContainerInfoStruct {
+func (dockerMock *Struct) FetchEventContainer(targetService string) interfaces.ContainerInfoStruct {
 	return FetchEventContainer(targetService)
 }
 

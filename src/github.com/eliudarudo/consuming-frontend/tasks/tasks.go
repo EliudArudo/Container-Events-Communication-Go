@@ -105,7 +105,7 @@ func getTargetService(key string) (string, error) {
 
 // Test this now
 func taskDeterminer(
-	dockerAPI dockerapi.Struct,
+	dockerAPI *dockerapi.Struct,
 	task interfaces.TaskType,
 	subtask interfaces.SubTaskType,
 	marshalledRequestBody string,
@@ -119,6 +119,8 @@ func taskDeterminer(
 		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
 	}
 	chosenContainer := dockerAPI.FetchEventContainer(targetService)
+
+	fmt.Println("Testing")
 
 	exportTask := interfaces.TaskStruct{
 		task,
@@ -181,7 +183,7 @@ func TaskController(decodedRequestBody map[string]interface{}, containerInfo int
 		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
 	}
 
-	localDockerAPIObject := dockerapi.Struct{}
+	localDockerAPIObject := &dockerapi.Struct{}
 
 	readyTask, err := taskDeterminer(localDockerAPIObject, task, subtask, string(marshalledRequestBody), containerInfo)
 	if err != nil {

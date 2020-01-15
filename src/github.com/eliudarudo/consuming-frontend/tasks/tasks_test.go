@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/eliudarudo/consuming-frontend/dockerapi"
 	"github.com/eliudarudo/consuming-frontend/interfaces"
 )
 
@@ -209,4 +210,35 @@ func TestGetTargetService(t *testing.T) {
 	}
 }
 
-func taskDeterminer(t *testing.T) {}
+func TestTaskDeterminer(t *testing.T) {
+	// dockerAPI.FetchEventContainer called with expected target service
+	// mock dockerAPI.fetchEventContainer
+	// check that exportTask returns containerInfo as sent
+	dummyTask := interfaces.NUMBER
+	dummySubTask := interfaces.ADD
+
+	dummyMarshalledRequestBody := "{}"
+	dummyContainerInfo := interfaces.ContainerInfoStruct{}
+
+	dummyDockerAPIMockObject := &dockerapi.Struct{}
+
+	dummyDockerAPIMockObject.ExpectToCall("FetchEventContainer")
+
+	// taskDeterminer(
+	// 	dummyDockerAPIMockObject,
+	// 	dummyTask,
+	// 	dummySubTask,
+	// 	dummyMarshalledRequestBody,
+	// 	dummyContainerInfo,
+	// )
+	// if err != nil {
+	// 	t.Errorf("error %v", err)
+	// }
+
+	dummyDockerAPIMockObject.Verify(t)
+
+	dummyDockerAPIMockObject.Restore()
+
+}
+
+func TestWaitForResult(t *testing.T) {}
