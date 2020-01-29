@@ -3,6 +3,7 @@ package dockerapi
 import (
 	"os"
 	"strings"
+	"testing"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -10,6 +11,42 @@ import (
 
 	"github.com/eliudarudo/consuming-backend/interfaces"
 )
+
+// Struct for a DockerAPI object
+type Struct struct {
+	methodsToCall map[string]bool
+}
+
+// ExpectToCall creates a mocking expectation
+func (dockerMock *Struct) ExpectToCall(methodName string) {
+	if dockerMock.methodsToCall == nil {
+		dockerMock.methodsToCall = make(map[string]bool)
+	}
+
+	dockerMock.methodsToCall[methodName] = false
+}
+
+// Verify checks which methods are called
+func (dockerMock *Struct) Verify(t *testing.T) {
+	for methodName, called := range dockerMock.methodsToCall {
+		if !called {
+			t.Errorf("Expected to call '%s', but it was not called", methodName)
+		}
+	}
+}
+
+// Restore clears all method calls
+func (dockerMock *Struct) Restore() {
+	dockerMock.methodsToCall = nil
+}
+
+// SetMyContainerInfo allows for tests to set myContainerInfo
+func SetMyContainerInfo(containerInfo *interfaces.ReceivedEventInterface) {
+	myContainerInfo = interfaces.ContainerInfoStruct{
+		ID:      containerInfo.ContainerID,
+		Service: containerInfo.Service,
+	}
+}
 
 var myContainerInfo interfaces.ContainerInfoStruct
 

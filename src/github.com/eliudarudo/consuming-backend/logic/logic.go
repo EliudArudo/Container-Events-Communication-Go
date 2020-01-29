@@ -13,6 +13,8 @@ import (
 
 var filename = "logic/logic.go"
 
+// TODO - this should be thoroughly tested
+
 // EventDeterminer determines which type of event
 // has been received through redis
 func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
