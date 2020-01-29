@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 
-	"github.com/eliudarudo/consuming-frontend/dockerapi"
 	"github.com/eliudarudo/consuming-frontend/interfaces"
+	"github.com/eliudarudo/consuming-frontend/util"
 )
 
 const succeedIcon = "\u2713"
@@ -210,35 +211,29 @@ func TestGetTargetService(t *testing.T) {
 	}
 }
 
-func TestTaskDeterminer(t *testing.T) {
-	// dockerAPI.FetchEventContainer called with expected target service
-	// mock dockerAPI.fetchEventContainer
-	// check that exportTask returns containerInfo as sent
-	dummyTask := interfaces.NUMBER
-	dummySubTask := interfaces.ADD
+func TestWaitForResult(t *testing.T) {
+	dummyRequestID := "dummyRequestID"
 
-	dummyMarshalledRequestBody := "{}"
-	dummyContainerInfo := interfaces.ContainerInfoStruct{}
+	dummyResponse := &interfaces.ReceivedEventInterface{
+		RequestID: dummyRequestID,
+	}
 
-	dummyDockerAPIMockObject := &dockerapi.Struct{}
+	util.PushResponseToBuffers(dummyResponse)
 
-	dummyDockerAPIMockObject.ExpectToCall("FetchEventContainer")
+	expiresAt := int64(time.Now().Add(1 * time.Second).Unix())
+	response := waitForResult(dummyRequestID, expiresAt)
 
-	// taskDeterminer(
-	// 	dummyDockerAPIMockObject,
-	// 	dummyTask,
-	// 	dummySubTask,
-	// 	dummyMarshalledRequestBody,
-	// 	dummyContainerInfo,
-	// )
-	// if err != nil {
-	// 	t.Errorf("error %v", err)
-	// }
+	stringResponse := fmt.Sprintf("%v", dummyResponse)
+	stringFoundResponse := fmt.Sprintf("%v", response)
 
-	dummyDockerAPIMockObject.Verify(t)
+	t.Logf("\tGiven sent response being = %v", stringResponse)
 
-	dummyDockerAPIMockObject.Restore()
+	t.Logf("\t\tTest: \tExpected obtained response to be = '%v'", stringResponse)
+
+	if stringResponse == stringFoundResponse {
+		t.Logf("\t\t%v Got : '%v'", succeedIcon, stringFoundResponse)
+	} else {
+		t.Errorf("\t\t%v Got : '%v'", failIcon, stringFoundResponse)
+	}
 
 }
-
-func TestWaitForResult(t *testing.T) {}

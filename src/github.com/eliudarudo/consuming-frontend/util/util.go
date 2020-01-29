@@ -6,20 +6,21 @@ import (
 
 var filename = "util/util.go"
 
-var responseBuffer []string
+// ResponseBuffer is an array of events that have arrived
+var ResponseBuffer []string
+
 var responses []interfaces.ReceivedEventInterface
 
-// PushResponseToBuffers pushes response object and ID to responseBuffer and responses array respectively
+// PushResponseToBuffers pushes response object and ID to ResponseBuffer and responses array respectively
 func PushResponseToBuffers(response *(interfaces.ReceivedEventInterface)) {
-	responseBuffer = append(responseBuffer, (*response).RequestID)
+	ResponseBuffer = append(ResponseBuffer, (*response).RequestID)
 	responses = append(responses, *response)
-
 }
 
 func clearResponseFromBuffers(requestID string) {
 	newResponseBuffer := make([]string, 0)
 	newResponsesArray := make([]interfaces.ReceivedEventInterface, 0)
-	for _, ID := range responseBuffer {
+	for _, ID := range ResponseBuffer {
 		isResponseID := ID != requestID
 		if isResponseID {
 			newResponseBuffer = append(newResponseBuffer, ID)
@@ -33,7 +34,7 @@ func clearResponseFromBuffers(requestID string) {
 		}
 	}
 
-	responseBuffer = newResponseBuffer
+	ResponseBuffer = newResponseBuffer
 	responses = newResponsesArray
 }
 
@@ -41,7 +42,7 @@ func clearResponseFromBuffers(requestID string) {
 func GetResponseFromBuffer(requestID string) *(interfaces.ReceivedEventInterface) {
 	var responseArrived bool
 	var response interfaces.ReceivedEventInterface
-	for _, ID := range responseBuffer {
+	for _, ID := range ResponseBuffer {
 		responseArrived = (ID == requestID)
 	}
 
