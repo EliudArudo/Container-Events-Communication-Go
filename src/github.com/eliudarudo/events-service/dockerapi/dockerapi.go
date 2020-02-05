@@ -16,6 +16,14 @@ import (
 
 var myContainerInfo interfaces.ContainerInfoStruct
 
+// SetMyContainerInfo allows for tests to set myContainerInfo
+func SetMyContainerInfo(containerInfo *interfaces.ReceivedEventInterface) {
+	myContainerInfo = interfaces.ContainerInfoStruct{
+		ID:      containerInfo.ServiceContainerID,
+		Service: containerInfo.ServiceContainerService,
+	}
+}
+
 // GetMyContainerInfo gets all docker containers and stores this container's info in the global
 // myContainerInfo variable
 func GetMyContainerInfo() *interfaces.ContainerInfoStruct {

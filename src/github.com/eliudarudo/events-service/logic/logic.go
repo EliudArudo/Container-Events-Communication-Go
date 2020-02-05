@@ -34,7 +34,6 @@ func EventDeterminer(event *(interfaces.ReceivedEventInterface)) {
 
 }
 
-
 func recordAndAllocateTask(task *(interfaces.ReceivedEventInterface)) {
 
 	initRecordInfo := databaseops.RecordNewTaskInDB(task)
@@ -57,7 +56,6 @@ func modifyDatabaseAndSendBackResponse(response *(interfaces.ReceivedEventInterf
 	sendEventToContainer(responseInfo)
 }
 
-
 func getParsedResponseInfo(task *(interfaces.ReceivedEventInterface), existingRecordInfo *interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	parsedResponseInfo := interfaces.EventInterface{
 		RequestID:    (*task).RequestID,
@@ -69,10 +67,6 @@ func getParsedResponseInfo(task *(interfaces.ReceivedEventInterface), existingRe
 	return &parsedResponseInfo
 }
 
-/*
-   Test
-    - sendEventToContainer called at least once
-*/
 func allocateTaskToConsumingContainer(initRecordInfo interfaces.InitialisedRecordInfoInterface) {
 	eventToSend := parseEventFromRecordInfo(initRecordInfo)
 
@@ -111,7 +105,6 @@ func sendEventToContainer(eventInfo *(interfaces.EventInterface)) {
 		logs.StatusFileMessageLogging("FAILURE", filename, "sendTaskToEventsService", err.Error())
 	}
 }
-
 
 func parseEventFromRecordInfo(initRecordInfo interfaces.InitialisedRecordInfoInterface) *interfaces.EventInterface {
 	event := interfaces.EventInterface{

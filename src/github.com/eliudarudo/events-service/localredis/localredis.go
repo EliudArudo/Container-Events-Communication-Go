@@ -54,7 +54,6 @@ func SetUpRedisPubSubListener() {
 
 }
 
-
 func parseAndReturnOurEvent(sentEvent string, containerInfo *(interfaces.ContainerInfoStruct)) *interfaces.ReceivedEventInterface {
 	var debug1 string
 	var event interfaces.ReceivedEventInterface
@@ -62,11 +61,11 @@ func parseAndReturnOurEvent(sentEvent string, containerInfo *(interfaces.Contain
 	json.Unmarshal([]byte(sentEvent), &event)
 
 	// If event is still unmarshalled
-	if len(event.ContainerID) == 0 {
+	if len(event.ServiceContainerID) == 0 {
 		json.Unmarshal([]byte(sentEvent), &debug1)
 
 		if err := json.Unmarshal([]byte(debug1), &event); err != nil {
-			logs.StatusFileMessageLogging("FAILURE", redisFilename, "EventDeterminer", err.Error())
+			logs.StatusFileMessageLogging("FAILURE", redisFilename, "parseAndReturnOurEvent", err.Error())
 		}
 	}
 	// else event is already marshalled

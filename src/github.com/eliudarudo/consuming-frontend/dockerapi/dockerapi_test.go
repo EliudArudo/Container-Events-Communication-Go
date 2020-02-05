@@ -43,7 +43,9 @@ func TestGetParsedContainers(t *testing.T) {
 		},
 	}
 
-	parsedContainers := []interfaces.ContainerInfoStruct{
+	parsedContainers, _ := getParsedContainers(dummyDockerContainers)
+
+	expectedParsedContainers := []interfaces.ContainerInfoStruct{
 		{
 			ID:      dummyContainerID,
 			Service: dummyContainerService,
@@ -54,7 +56,7 @@ func TestGetParsedContainers(t *testing.T) {
 
 	t.Log("\t\tTest: \tExpected dummyDockerContainers to be parsed to parsedContainers")
 
-	if parsedContainers[0].ID == dummyDockerContainers[0].ID {
+	if parsedContainers[0].ID == expectedParsedContainers[0].ID {
 		t.Logf("\t\t%v Got : '%v'", succeedIcon, parsedContainers[0].ID)
 	} else {
 		t.Errorf("\t\t%v Got : '%v'", failIcon, parsedContainers[0].ID)

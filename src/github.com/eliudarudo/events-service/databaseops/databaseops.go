@@ -21,7 +21,6 @@ import (
 
 var filename = "databaseops/databaseops.go"
 
-
 func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 	mongoClient := mongodb.GetClient()
 
@@ -29,7 +28,6 @@ func getDatabaseCollection(collectionName string) *(mongo.Collection) {
 
 	return collection
 }
-
 
 func getExistingRequestDocumentID(request string) *string {
 	collection := getDatabaseCollection("requests")
@@ -54,7 +52,6 @@ func getExistingRequestDocumentID(request string) *string {
 
 	return &finalID
 }
-
 
 func getExistingTask(task *(interfaces.ReceivedEventInterface)) *interfaces.TaskModelInterface {
 	existingTask := interfaces.TaskModelInterface{}
@@ -87,7 +84,6 @@ func getExistingTask(task *(interfaces.ReceivedEventInterface)) *interfaces.Task
 
 	return &existingTask
 }
-
 
 func getExistingParsedTask(mongoDBTask *(interfaces.TaskModelInterface)) *interfaces.InitialisedRecordInfoInterface {
 	toResponseID := (*mongoDBTask).ToResponseBodyID
@@ -130,7 +126,6 @@ func getExistingParsedTask(mongoDBTask *(interfaces.TaskModelInterface)) *interf
 	return parsedTask
 }
 
-
 func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContainerInfo interfaces.ContainerInfoStruct) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := interfaces.InitialisedRecordInfoInterface{
 		ContainerID:             mongoDBTask.FromContainerID,
@@ -164,7 +159,6 @@ func getNewParsedTask(mongoDBTask interfaces.TaskModelInterface, selectedContain
 	return &parsedTask
 }
 
-
 func saveNewRequestAndGetID(requestBody string) string {
 
 	collection := getDatabaseCollection("requests")
@@ -186,9 +180,8 @@ func saveNewRequestAndGetID(requestBody string) string {
 
 }
 
-
 func getTargetService(key string) (string, error) {
-	jsonFile, err := os.Open("tasks/task-maps.json")
+	jsonFile, err := os.Open("../tasks/task-maps.json")
 	if err != nil {
 		return "", err
 	}
@@ -201,7 +194,6 @@ func getTargetService(key string) (string, error) {
 
 	return result[key], nil
 }
-
 
 func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventInterface), requestBodyID string) *interfaces.InitialisedRecordInfoInterface {
 	parsedTask := &interfaces.InitialisedRecordInfoInterface{}
@@ -246,7 +238,6 @@ func recordNewInitialisedTaskWithRequestID(funcTask *(interfaces.ReceivedEventIn
 	return parsedTask
 }
 
-
 func recordNewTaskAndRequest(task *(interfaces.ReceivedEventInterface)) *interfaces.InitialisedRecordInfoInterface {
 	requestBodyID := saveNewRequestAndGetID((*task).RequestBody)
 
@@ -256,7 +247,6 @@ func recordNewTaskAndRequest(task *(interfaces.ReceivedEventInterface)) *interfa
 
 	return initialisedInfo
 }
-
 
 func getParsedResponse(funcResponse *(interfaces.ReceivedEventInterface), oldTask *(interfaces.TaskModelInterface)) *interfaces.EventInterface {
 	response := interfaces.EventInterface{
@@ -268,7 +258,6 @@ func getParsedResponse(funcResponse *(interfaces.ReceivedEventInterface), oldTas
 
 	return &response
 }
-
 
 func saveNewResponseAndGetID(funcResponse *(interfaces.ReceivedEventInterface)) string {
 
