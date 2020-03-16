@@ -1,0 +1,18 @@
+name: Frontend Tests + Push
+
+on:
+    push:
+        branches:
+        - master
+        paths:
+        - src/github.com/eliudarudo/consuming-frontend/**    
+
+jobs:
+    ci:
+        steps:
+            - uses: actions/checkout@master
+            - uses: actions/setup-go@v1
+            - run: go test -v ./...  
+        
+
+            
