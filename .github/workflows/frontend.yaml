@@ -13,6 +13,12 @@ jobs:
         steps:
             - uses: actions/checkout@master
             - uses: actions/setup-go@v1
+            - name: Get all packages
+              working-directory: ./src/github.com/eliudarudo/consuming-frontend
+              run: go get -u ./...
+            - name: Get specific docker package
+              working-directory: ./src/github.com/eliudarudo/consuming-frontend
+              run: go get github.com/docker/docker@c9553897f3836a3c8ce448060d145528d4f2e9f2
             - name: Change directory
               working-directory: ./src/github.com/eliudarudo/consuming-frontend
               run: go test -v ./...  
