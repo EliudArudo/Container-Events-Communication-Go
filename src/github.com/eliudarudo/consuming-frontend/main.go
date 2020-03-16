@@ -5,7 +5,7 @@ import (
 )
 
 /* Find out how many tests we have <go test ./... -v | grep -c Given>  v1*/
-/* v7 */
+/* v8 */
 
 func main() {
 	initialise.Go()
