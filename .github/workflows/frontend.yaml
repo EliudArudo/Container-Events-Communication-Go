@@ -16,7 +16,7 @@ jobs:
               env:
                 GOPATH: $HOME
             - name: Run tests
-              working-directory: ./src/github.com/eliudarudo/consuming-frontend
+              working-directory: $GOPATH/src/github.com/eliudarudo/consuming-frontend
               run: go test -v ./...  
         
 
