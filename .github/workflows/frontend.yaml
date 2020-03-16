@@ -13,15 +13,6 @@ jobs:
         steps:
             - uses: actions/checkout@master
             - uses: actions/setup-go@v1
-            - name: Create go.mod file
-              working-directory: ./src/github.com/eliudarudo/consuming-frontend
-              run: go mod init github.com/eliudarudo/consuming-frontend
-            - name: Get imports into go.mod
-              working-directory: ./src/github.com/eliudarudo/consuming-frontend
-              run: go build
-            - name: Get updated docker image
-              working-directory: ./src/github.com/eliudarudo/consuming-frontend
-              run: go get github.com/docker/docker@c9553897f3836a3c8ce448060d145528d4f2e9f2
             - name: Run tests
               working-directory: ./src/github.com/eliudarudo/consuming-frontend
               run: go test -v ./...  
