@@ -13,7 +13,7 @@ jobs:
         steps:
             - uses: actions/checkout@master
             - uses: actions/setup-go@v1
-             env:
+              env:
                 GOPATH: $HOME
             - name: Run tests
               working-directory: ./src/github.com/eliudarudo/consuming-frontend
