@@ -29,6 +29,6 @@ jobs:
             env:
               GOPROXY: "https://proxy.golang.org"
             working-directory: src/github.com/eliudarudo/consuming-frontend
-            run: go test -v ./... 
+            run: go test ./... 
 
             
