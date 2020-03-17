@@ -1,5 +1,9 @@
 ## An Event Based Microservice Architecture
 
+![](https://github.com/EliudArudo/Container-Events-Communication-Go/workflows/Frontend%20Tests%20+%20Push/badge.svg)
+![](https://github.com/EliudArudo/Container-Events-Communication-Go/workflows/Event%20Tests%20+%20Push/badge.svg)
+![](https://github.com/EliudArudo/Container-Events-Communication-Go/workflows/Backend%20Tests%20+%20Push/badge.svg)
+
 <div style="height:80px; width: 120px; display: inline-flex; flex-direction: row; justify-content: center; align-items: center;">
 
 <img style="height: 50px; width: auto; max-width: 50px; margin-right: 20px;" src="images/go.png"/>
