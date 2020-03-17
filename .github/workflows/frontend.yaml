@@ -11,13 +11,24 @@ jobs:
     ci:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@master
-            - uses: actions/setup-go@v1
-              env:
-                GOPATH: $HOME
-            - name: Run tests
-              working-directory: $GOPATH/src/github.com/eliudarudo/consuming-frontend
-              run: go test -v $GOPATH/...  
+          - name: Set up Go 1.13
+            uses: actions/setup-go@v1
+            with: 
+              - go-version: 1.13
+
+          - name: Check out source code
+            uses: actions/checkout@master
+            
+          - name: Build
+            env:   
+              GOPROXY: "https://proxy.golang.org"
+            working-directory: src/github.com/eliudarudo/consuming-frontend
+            run: go build .  
         
+           - name: Test
+             env:
+              GOPROXY: "https://proxy.golang.org"
+             working-directory: src/github.com/eliudarudo/consuming-frontend
+             run: go test -v . 
 
             
