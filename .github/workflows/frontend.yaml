@@ -25,10 +25,10 @@ jobs:
             working-directory: src/github.com/eliudarudo/consuming-frontend
             run: go build .  
         
-           - name: Test
-             env:
+          - name: Test
+            env:
               GOPROXY: "https://proxy.golang.org"
-             working-directory: src/github.com/eliudarudo/consuming-frontend
-             run: go test -v . 
+            working-directory: src/github.com/eliudarudo/consuming-frontend
+            run: go test -v . 
 
             
