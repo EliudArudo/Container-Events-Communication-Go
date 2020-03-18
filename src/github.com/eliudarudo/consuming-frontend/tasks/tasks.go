@@ -89,7 +89,7 @@ func determineSubtask(task interfaces.TaskType, requestBody map[string]interface
 }
 
 func getTargetService(key string) (string, error) {
-	jsonFile, err := os.Open("task-maps.json")
+	jsonFile, err := os.Open("./task-maps.json")
 	if err != nil {
 		return "", err
 	}
@@ -119,8 +119,6 @@ func taskDeterminer(
 		logs.StatusFileMessageLogging("FAILURE", filename, "taskDeterminer", err.Error())
 	}
 	chosenContainer := dockerAPI.FetchEventContainer(targetService)
-
-	fmt.Println("Testing")
 
 	exportTask := interfaces.TaskStruct{
 		task,

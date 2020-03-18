@@ -181,7 +181,7 @@ func saveNewRequestAndGetID(requestBody string) string {
 }
 
 func getTargetService(key string) (string, error) {
-	jsonFile, err := os.Open("../tasks/task-maps.json")
+	jsonFile, err := os.Open("./task-maps.json")
 	if err != nil {
 		return "", err
 	}

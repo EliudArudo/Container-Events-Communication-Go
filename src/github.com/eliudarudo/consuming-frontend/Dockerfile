@@ -18,6 +18,8 @@ FROM scratch
 
 WORKDIR /app
 
+COPY ./tasks/task-maps.json ./task-maps.json
+
 COPY --from=builder /app/goFrontend .
 
 ENTRYPOINT [ "./goFrontend" ]
