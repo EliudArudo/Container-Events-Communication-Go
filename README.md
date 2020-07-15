@@ -452,13 +452,25 @@ Testing 2500 reqs, at 100 reqs/s
 
 |Frontend/Events/Backend|     response time (avg)       |
 |-----------------------|:-----------------------------:|
-| Go/Go/Go              |           1.1s                |
-| Go/Go/*NodeJS*        |           2.5s                |
-| Go/*NodeJS*/Go        |           2s                  |
-| *NodeJS*/Go/Go        |           122ms               |
-| Go/*NodeJS*/*NodeJS*  |           2s                  |
-| *NodeJS*/Go/*NodeJS*  |           2.4s                |
-| *NodeJS*/*NodeJS*/Go  |           3.2s                |
+| Go/Go/Go              |  1.1s (500 reqs, 5 reqs/s)    |
+| Go/Go/*NodeJS*        |  2.5s (500 reqs, 10 reqs/s)   |
+| Go/*NodeJS*/Go        |  2s (500r reqs 10 reqs/s)     |
+| *NodeJS*/Go/Go        |  122ms (1000 reqs, 1 reqs/s)  |
+| Go/*NodeJS*/*NodeJS*  |  2s (500 reqs, 10 reqs/s)     |
+| *NodeJS*/Go/*NodeJS*  |  2.4s (500 reqs, 10 reqs/s)   |
+| *NodeJS*/*NodeJS*/Go  |  3.2s (2500 reqs, 100 reqs/s) |
+| Go/Go/*Java*          |  5s (500 reqs, 10 reqs/s)     | 
+| Go/*Java*/Go          |  1.6s (500 reqs, 10 reqs/s)   |
+| *Java*/Go/Go          |  3.1s (500 reqs, 10 reqs/s)   | 
+| Go/*Java*/*Java*      |  1.7s (500 reqs, 10 reqs/s)   |
+| *Java*/Go/*Java*      |  2.1s (500 reqs, 10 reqs/s)   |
+| *Java*/*Java*/Go      |  1.3s (500 reqs, 10 reqs/s)   |
+| Go/*Java*/*NodeJS*    |  1.7s (500 reqs, 10 reqs/s)   |
+| Go/*NodeJS*/*Java*    |  1.7s (500 reqs, 10 reqs/s)   |
+| *Java*/Go/*NodeJS*    |  2.8s (500 reqs, 10 reqs/s)   |
+| *Java*/*NodeJS*/Go    |  8.8s (500 reqs, 10 reqs/s)   |
+| *NodeJS*/Go/*Java*    |  15s (500 reqs, 10 reqs/s)    |
+| *NodeJS*/*Java*/Go    |  1s (500 reqs, 10 reqs/s)     |
 
 
 ### Deployment
