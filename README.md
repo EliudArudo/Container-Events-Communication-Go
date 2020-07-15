@@ -48,6 +48,7 @@ _**Languages**_
 
 Service image templates in this repo are written in **Go**. Other languages include:
 - [NodeJS](https://github.com/EliudArudo/Container-Events-Communication-Test-NodeJS)
+- [Java](https://github.com/EliudArudo/Container-Events-Communication-Java)
 
 You're more than welcome to check out its internals and rewrite it in your desired language.
 
