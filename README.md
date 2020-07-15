@@ -630,9 +630,9 @@ Please notify me of more possibilities here so I can share it with everyone, tha
   
 ### Upcoming Updates
 ---
-1. Adding tests with CI integration
+1. Adding tests with CI integration ✔
 2. Swapping MongoDB for Cassandra or CockroachDB
-3. Adding a 3rd repo written in Java using Spark framework
+3. Adding a 3rd repo written in Java using Spark framework ✔
 4. Integration with RabitMQ
 
 Your help in these areas will be much appreciated
